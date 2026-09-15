@@ -1,4 +1,4 @@
-package dev.study.orderplatform.persistence.repository;
+package dev.study.orderplatform.persistence.adapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -20,11 +20,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import dev.study.orderplatform.application.CreateOrderService;
+import dev.study.orderplatform.application.GetOrderService;
 import dev.study.orderplatform.domain.model.Money;
 import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.model.OrderLine;
-import dev.study.orderplatform.domain.service.CreateOrderService;
-import dev.study.orderplatform.domain.service.GetOrderService;
 
 @WebMvcTest(OrderController.class)
 class OrderControllerTest {

@@ -5,11 +5,11 @@ import java.time.Clock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import dev.study.orderplatform.application.CreateOrderService;
+import dev.study.orderplatform.application.GetOrderService;
 import dev.study.orderplatform.domain.port.LoadOrderPort;
 import dev.study.orderplatform.domain.port.OrderIdGenerator;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
-import dev.study.orderplatform.domain.service.CreateOrderService;
-import dev.study.orderplatform.domain.service.GetOrderService;
 
 @Configuration(proxyBeanMethods = false)
 public class OrderConfiguration {

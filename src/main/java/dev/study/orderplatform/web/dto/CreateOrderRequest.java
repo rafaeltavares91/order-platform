@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.List;
 
-import dev.study.orderplatform.domain.service.CreateOrderService;
-import dev.study.orderplatform.domain.service.CreateOrderService.CreateOrderCommand;
+import dev.study.orderplatform.application.CreateOrderService;
+import dev.study.orderplatform.application.CreateOrderService.CreateOrderCommand;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;

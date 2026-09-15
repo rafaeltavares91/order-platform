@@ -1,8 +1,7 @@
-package dev.study.orderplatform.domain.service;
+package dev.study.orderplatform.application;
 
 import java.util.UUID;
 
-import dev.study.orderplatform.domain.exception.OrderNotFoundException;
 import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.port.LoadOrderPort;
 

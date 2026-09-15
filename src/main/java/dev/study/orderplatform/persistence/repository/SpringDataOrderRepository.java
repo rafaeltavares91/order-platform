@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import dev.study.orderplatform.persistence.entity.OrderJpaEntity;
 
-interface SpringDataOrderRepository extends JpaRepository<OrderJpaEntity, UUID> {
+public interface SpringDataOrderRepository extends JpaRepository<OrderJpaEntity, UUID> {
 
     @Override
     @EntityGraph(attributePaths = "lines")

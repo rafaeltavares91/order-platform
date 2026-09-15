@@ -1,4 +1,4 @@
-package dev.study.orderplatform.domain.service;
+package dev.study.orderplatform.application;
 
 import java.math.BigDecimal;
 import java.time.Clock;

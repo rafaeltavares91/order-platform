@@ -10,7 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import dev.study.orderplatform.domain.exception.OrderNotFoundException;
+import dev.study.orderplatform.application.OrderNotFoundException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {

@@ -1,4 +1,4 @@
-package dev.study.orderplatform.persistence.repository;
+package dev.study.orderplatform.persistence.adapter;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -10,6 +10,7 @@ import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.port.LoadOrderPort;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
 import dev.study.orderplatform.persistence.entity.OrderJpaEntity;
+import dev.study.orderplatform.persistence.repository.SpringDataOrderRepository;
 import jakarta.persistence.EntityManager;
 
 @Repository

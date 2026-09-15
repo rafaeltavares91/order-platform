@@ -51,13 +51,14 @@ Health endpoints are available at `/actuator/health`, `/actuator/health/liveness
 
 The project is a single deployable Gradle module with a compact package structure:
 
-- `domain.model`, `domain.service`, `domain.port`, and `domain.exception` contain framework-free business code.
+- `application` contains framework-free use-case orchestration and commands.
+- `domain.model` and `domain.port` contain business rules and infrastructure-independent output contracts.
 - `web.controller`, `web.dto`, and `web.error` expose the HTTP API.
-- `persistence.repository` and `persistence.entity` implement persistence with Spring Data and JPA.
+- `persistence.adapter`, `persistence.repository`, and `persistence.entity` implement persistence with Spring Data and JPA.
 - `identifier` provides order identifiers.
 - `configuration` wires the domain to its infrastructure.
 
-Dependencies point inward. ArchUnit tests protect the most important boundaries without requiring separate build modules.
+Dependencies follow `web -> application -> domain <- persistence`. ArchUnit tests protect the most important boundaries without requiring separate build modules.
 
 Flyway exclusively owns the schema. Hibernate validates it and never creates or updates it. Production deployments should run Flyway with a dedicated migration identity before rolling out application instances; the runtime database identity should have only data-access privileges.
 

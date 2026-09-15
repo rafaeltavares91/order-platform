@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.study.orderplatform.domain.service.CreateOrderService;
-import dev.study.orderplatform.domain.service.GetOrderService;
+import dev.study.orderplatform.application.CreateOrderService;
+import dev.study.orderplatform.application.GetOrderService;
 import dev.study.orderplatform.web.dto.CreateOrderRequest;
 import dev.study.orderplatform.web.dto.OrderResponse;
 import jakarta.validation.Valid;

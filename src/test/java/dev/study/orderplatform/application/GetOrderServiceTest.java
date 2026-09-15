@@ -1,4 +1,4 @@
-package dev.study.orderplatform.domain.service;
+package dev.study.orderplatform.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -12,7 +12,6 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import dev.study.orderplatform.domain.exception.OrderNotFoundException;
 import dev.study.orderplatform.domain.model.Money;
 import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.model.OrderLine;
