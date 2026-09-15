@@ -15,11 +15,13 @@ class ArchitectureTest {
             .should().dependOnClassesThat().resideInAnyPackage(
                     "org.springframework..",
                     "jakarta.persistence..",
-                    "..application..",
-                    "..adapter..");
+                    "..configuration..",
+                    "..identifier..",
+                    "..persistence..",
+                    "..web..");
 
     @ArchTest
-    static final ArchRule web_adapters_do_not_depend_on_persistence_adapters = noClasses()
-            .that().resideInAPackage("..adapter.in.web..")
-            .should().dependOnClassesThat().resideInAPackage("..adapter.out.persistence..");
+    static final ArchRule web_does_not_depend_on_infrastructure = noClasses()
+            .that().resideInAPackage("..web..")
+            .should().dependOnClassesThat().resideInAnyPackage("..identifier..", "..persistence..");
 }

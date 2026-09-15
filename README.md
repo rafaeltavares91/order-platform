@@ -49,11 +49,13 @@ Health endpoints are available at `/actuator/health`, `/actuator/health/liveness
 
 ## Architecture
 
-The project is a single deployable Gradle module organized by business capability. Inside the `order` capability:
+The project is a single deployable Gradle module with a compact package structure:
 
 - `domain` contains framework-free business types, domain services, and the abstractions they require.
-- `adapter.in.web` translates HTTP requests and responses.
-- `adapter.out.persistence` translates between the domain and JPA.
+- `web` translates HTTP requests and responses.
+- `persistence` translates between the domain and JPA.
+- `identifier` provides order identifiers.
+- `configuration` wires the domain to its infrastructure.
 
 Dependencies point inward. ArchUnit tests protect the most important boundaries without requiring separate build modules.
 
