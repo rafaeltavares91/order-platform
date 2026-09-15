@@ -4,9 +4,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import dev.study.orderplatform.order.application.port.out.LoadOrderPort;
-import dev.study.orderplatform.order.application.port.out.SaveOrderPort;
+import dev.study.orderplatform.order.domain.LoadOrderPort;
+import dev.study.orderplatform.order.domain.SaveOrderPort;
 import dev.study.orderplatform.order.domain.model.Order;
 import jakarta.persistence.EntityManager;
 
@@ -22,6 +23,7 @@ public class OrderPersistenceAdapter implements SaveOrderPort, LoadOrderPort {
     }
 
     @Override
+    @Transactional
     public Order save(Order order) {
         var entity = OrderJpaEntity.from(order);
         entityManager.persist(entity);
@@ -29,6 +31,7 @@ public class OrderPersistenceAdapter implements SaveOrderPort, LoadOrderPort {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Order> findById(UUID id) {
         return repository.findById(id).map(OrderJpaEntity::toDomain);
     }

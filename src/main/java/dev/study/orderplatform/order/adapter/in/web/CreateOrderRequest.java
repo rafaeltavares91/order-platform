@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.List;
 
-import dev.study.orderplatform.order.application.port.in.CreateOrderUseCase;
-import dev.study.orderplatform.order.application.port.in.CreateOrderUseCase.CreateOrderCommand;
+import dev.study.orderplatform.order.domain.CreateOrderService;
+import dev.study.orderplatform.order.domain.CreateOrderService.CreateOrderCommand;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -35,8 +35,8 @@ public record CreateOrderRequest(
             @NotNull @DecimalMin(value = "0", inclusive = false) @Digits(integer = 15, fraction = 4)
                     BigDecimal unitPrice) {
 
-        CreateOrderUseCase.Line toCommand() {
-            return new CreateOrderUseCase.Line(sku, quantity, unitPrice);
+        CreateOrderService.Line toCommand() {
+            return new CreateOrderService.Line(sku, quantity, unitPrice);
         }
     }
 }

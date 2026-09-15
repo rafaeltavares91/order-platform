@@ -20,8 +20,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import dev.study.orderplatform.order.application.port.in.CreateOrderUseCase;
-import dev.study.orderplatform.order.application.port.in.GetOrderUseCase;
+import dev.study.orderplatform.order.domain.CreateOrderService;
+import dev.study.orderplatform.order.domain.GetOrderService;
 import dev.study.orderplatform.order.domain.model.Money;
 import dev.study.orderplatform.order.domain.model.Order;
 import dev.study.orderplatform.order.domain.model.OrderLine;
@@ -33,10 +33,10 @@ class OrderControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private CreateOrderUseCase createOrderUseCase;
+    private CreateOrderService createOrderService;
 
     @MockitoBean
-    private GetOrderUseCase getOrderUseCase;
+    private GetOrderService getOrderService;
 
     @Test
     void createsAnOrderAtTheUnversionedResourceUrl() throws Exception {
@@ -48,7 +48,7 @@ class OrderControllerTest {
                 currency,
                 List.of(new OrderLine("SKU-1", 2, new Money(new BigDecimal("10.2500"), currency))),
                 Instant.parse("2026-09-14T12:00:00Z"));
-        when(createOrderUseCase.create(any())).thenReturn(order);
+        when(createOrderService.create(any())).thenReturn(order);
 
         mockMvc.perform(post("/orders")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -51,8 +51,7 @@ Health endpoints are available at `/actuator/health`, `/actuator/health/liveness
 
 The project is a single deployable Gradle module organized by business capability. Inside the `order` capability:
 
-- `domain` contains framework-free business types and invariants.
-- `application` contains use cases and inbound/outbound ports.
+- `domain` contains framework-free business types, domain services, and the abstractions they require.
 - `adapter.in.web` translates HTTP requests and responses.
 - `adapter.out.persistence` translates between the domain and JPA.
 

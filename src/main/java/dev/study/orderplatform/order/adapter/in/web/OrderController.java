@@ -11,30 +11,30 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.study.orderplatform.order.application.port.in.CreateOrderUseCase;
-import dev.study.orderplatform.order.application.port.in.GetOrderUseCase;
+import dev.study.orderplatform.order.domain.CreateOrderService;
+import dev.study.orderplatform.order.domain.GetOrderService;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
 
-    private final CreateOrderUseCase createOrderUseCase;
-    private final GetOrderUseCase getOrderUseCase;
+    private final CreateOrderService createOrderService;
+    private final GetOrderService getOrderService;
 
-    public OrderController(CreateOrderUseCase createOrderUseCase, GetOrderUseCase getOrderUseCase) {
-        this.createOrderUseCase = createOrderUseCase;
-        this.getOrderUseCase = getOrderUseCase;
+    public OrderController(CreateOrderService createOrderService, GetOrderService getOrderService) {
+        this.createOrderService = createOrderService;
+        this.getOrderService = getOrderService;
     }
 
     @PostMapping
     public ResponseEntity<OrderResponse> create(@Valid @RequestBody CreateOrderRequest request) {
-        var order = createOrderUseCase.create(request.toCommand());
+        var order = createOrderService.create(request.toCommand());
         return ResponseEntity.created(URI.create("/orders/" + order.id())).body(OrderResponse.from(order));
     }
 
     @GetMapping("/{orderId}")
     public OrderResponse getById(@PathVariable UUID orderId) {
-        return OrderResponse.from(getOrderUseCase.getById(orderId));
+        return OrderResponse.from(getOrderService.getById(orderId));
     }
 }

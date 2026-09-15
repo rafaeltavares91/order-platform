@@ -1,4 +1,4 @@
-package dev.study.orderplatform.order.application.service;
+package dev.study.orderplatform.order.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,9 +13,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
-import dev.study.orderplatform.order.application.port.in.CreateOrderUseCase.CreateOrderCommand;
-import dev.study.orderplatform.order.application.port.in.CreateOrderUseCase.Line;
-import dev.study.orderplatform.order.application.port.out.SaveOrderPort;
+import dev.study.orderplatform.order.domain.CreateOrderService.CreateOrderCommand;
+import dev.study.orderplatform.order.domain.CreateOrderService.Line;
 import dev.study.orderplatform.order.domain.model.Order;
 
 class CreateOrderServiceTest {

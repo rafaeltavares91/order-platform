@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 
-import dev.study.orderplatform.order.application.port.out.OrderIdGenerator;
+import dev.study.orderplatform.order.domain.OrderIdGenerator;
 
 @Component
 public class UuidV7OrderIdGenerator implements OrderIdGenerator {
