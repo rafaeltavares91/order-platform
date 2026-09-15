@@ -51,9 +51,9 @@ Health endpoints are available at `/actuator/health`, `/actuator/health/liveness
 
 The project is a single deployable Gradle module with a compact package structure:
 
-- `domain` contains framework-free business types, domain services, and the abstractions they require.
-- `web` translates HTTP requests and responses.
-- `persistence` translates between the domain and JPA.
+- `domain.model`, `domain.service`, `domain.port`, and `domain.exception` contain framework-free business code.
+- `web.controller`, `web.dto`, and `web.error` expose the HTTP API.
+- `persistence.repository` and `persistence.entity` implement persistence with Spring Data and JPA.
 - `identifier` provides order identifiers.
 - `configuration` wires the domain to its infrastructure.
 

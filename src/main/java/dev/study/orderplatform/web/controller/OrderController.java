@@ -1,4 +1,4 @@
-package dev.study.orderplatform.web;
+package dev.study.orderplatform.web.controller;
 
 import java.net.URI;
 import java.util.UUID;
@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.study.orderplatform.domain.CreateOrderService;
-import dev.study.orderplatform.domain.GetOrderService;
+import dev.study.orderplatform.domain.service.CreateOrderService;
+import dev.study.orderplatform.domain.service.GetOrderService;
+import dev.study.orderplatform.web.dto.CreateOrderRequest;
+import dev.study.orderplatform.web.dto.OrderResponse;
 import jakarta.validation.Valid;
 
 @RestController

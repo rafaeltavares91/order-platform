@@ -1,9 +1,15 @@
-package dev.study.orderplatform.domain;
+package dev.study.orderplatform.domain.service;
 
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.Currency;
 import java.util.List;
+
+import dev.study.orderplatform.domain.model.Money;
+import dev.study.orderplatform.domain.model.Order;
+import dev.study.orderplatform.domain.model.OrderLine;
+import dev.study.orderplatform.domain.port.OrderIdGenerator;
+import dev.study.orderplatform.domain.port.SaveOrderPort;
 
 public class CreateOrderService {
 

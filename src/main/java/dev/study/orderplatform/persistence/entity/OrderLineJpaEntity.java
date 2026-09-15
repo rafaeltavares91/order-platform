@@ -1,10 +1,10 @@
-package dev.study.orderplatform.persistence;
+package dev.study.orderplatform.persistence.entity;
 
 import java.math.BigDecimal;
 import java.util.Currency;
 
-import dev.study.orderplatform.domain.Money;
-import dev.study.orderplatform.domain.OrderLine;
+import dev.study.orderplatform.domain.model.Money;
+import dev.study.orderplatform.domain.model.OrderLine;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

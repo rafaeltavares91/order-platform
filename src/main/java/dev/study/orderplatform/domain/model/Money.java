@@ -1,4 +1,4 @@
-package dev.study.orderplatform.domain;
+package dev.study.orderplatform.domain.model;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

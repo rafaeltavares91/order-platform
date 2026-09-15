@@ -1,11 +1,11 @@
-package dev.study.orderplatform.web;
+package dev.study.orderplatform.web.dto;
 
 import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.List;
 
-import dev.study.orderplatform.domain.CreateOrderService;
-import dev.study.orderplatform.domain.CreateOrderService.CreateOrderCommand;
+import dev.study.orderplatform.domain.service.CreateOrderService;
+import dev.study.orderplatform.domain.service.CreateOrderService.CreateOrderCommand;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -22,7 +22,7 @@ public record CreateOrderRequest(
         @NotBlank @Pattern(regexp = "^[A-Z]{3}$") String currency,
         @NotEmpty List<@Valid Line> lines) {
 
-    CreateOrderCommand toCommand() {
+    public CreateOrderCommand toCommand() {
         return new CreateOrderCommand(
                 customerId,
                 Currency.getInstance(currency),
@@ -35,7 +35,7 @@ public record CreateOrderRequest(
             @NotNull @DecimalMin(value = "0", inclusive = false) @Digits(integer = 15, fraction = 4)
                     BigDecimal unitPrice) {
 
-        CreateOrderService.Line toCommand() {
+        public CreateOrderService.Line toCommand() {
             return new CreateOrderService.Line(sku, quantity, unitPrice);
         }
     }

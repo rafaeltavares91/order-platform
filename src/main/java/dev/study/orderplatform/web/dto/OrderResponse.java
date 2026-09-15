@@ -1,11 +1,11 @@
-package dev.study.orderplatform.web;
+package dev.study.orderplatform.web.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import dev.study.orderplatform.domain.Order;
+import dev.study.orderplatform.domain.model.Order;
 
 public record OrderResponse(
         UUID id,
@@ -17,7 +17,7 @@ public record OrderResponse(
         long version,
         List<Line> lines) {
 
-    static OrderResponse from(Order order) {
+    public static OrderResponse from(Order order) {
         return new OrderResponse(
                 order.id(),
                 order.customerId(),

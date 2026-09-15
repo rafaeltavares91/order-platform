@@ -1,4 +1,4 @@
-package dev.study.orderplatform.domain;
+package dev.study.orderplatform.domain.model;
 
 import java.time.Instant;
 import java.util.Currency;

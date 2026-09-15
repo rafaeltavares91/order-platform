@@ -1,4 +1,4 @@
-package dev.study.orderplatform.persistence;
+package dev.study.orderplatform.persistence.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,9 +17,9 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-import dev.study.orderplatform.domain.Money;
-import dev.study.orderplatform.domain.Order;
-import dev.study.orderplatform.domain.OrderLine;
+import dev.study.orderplatform.domain.model.Money;
+import dev.study.orderplatform.domain.model.Order;
+import dev.study.orderplatform.domain.model.OrderLine;
 import jakarta.persistence.EntityManager;
 
 @SpringBootTest

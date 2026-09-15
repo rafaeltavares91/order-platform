@@ -1,10 +1,12 @@
-package dev.study.orderplatform.persistence;
+package dev.study.orderplatform.persistence.repository;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import dev.study.orderplatform.persistence.entity.OrderJpaEntity;
 
 interface SpringDataOrderRepository extends JpaRepository<OrderJpaEntity, UUID> {
 

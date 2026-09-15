@@ -1,4 +1,4 @@
-package dev.study.orderplatform.persistence;
+package dev.study.orderplatform.persistence.entity;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -7,9 +7,9 @@ import java.util.Currency;
 import java.util.List;
 import java.util.UUID;
 
-import dev.study.orderplatform.domain.Money;
-import dev.study.orderplatform.domain.Order;
-import dev.study.orderplatform.domain.OrderStatus;
+import dev.study.orderplatform.domain.model.Money;
+import dev.study.orderplatform.domain.model.Order;
+import dev.study.orderplatform.domain.model.OrderStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,7 +24,7 @@ import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "customer_orders")
-class OrderJpaEntity {
+public class OrderJpaEntity {
 
     @Id
     private UUID id;
@@ -56,7 +56,7 @@ class OrderJpaEntity {
     protected OrderJpaEntity() {
     }
 
-    static OrderJpaEntity from(Order order) {
+    public static OrderJpaEntity from(Order order) {
         var entity = new OrderJpaEntity();
         entity.id = order.id();
         entity.customerId = order.customerId();
@@ -72,7 +72,7 @@ class OrderJpaEntity {
         return entity;
     }
 
-    Order toDomain() {
+    public Order toDomain() {
         Currency orderCurrency = Currency.getInstance(currency);
         return Order.rehydrate(
                 id,

@@ -1,4 +1,4 @@
-package dev.study.orderplatform.web;
+package dev.study.orderplatform.web.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -20,11 +20,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import dev.study.orderplatform.domain.CreateOrderService;
-import dev.study.orderplatform.domain.GetOrderService;
-import dev.study.orderplatform.domain.Money;
-import dev.study.orderplatform.domain.Order;
-import dev.study.orderplatform.domain.OrderLine;
+import dev.study.orderplatform.domain.model.Money;
+import dev.study.orderplatform.domain.model.Order;
+import dev.study.orderplatform.domain.model.OrderLine;
+import dev.study.orderplatform.domain.service.CreateOrderService;
+import dev.study.orderplatform.domain.service.GetOrderService;
 
 @WebMvcTest(OrderController.class)
 class OrderControllerTest {
