@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Currency;
-import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,6 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import dev.study.orderplatform.domain.model.Money;
 import dev.study.orderplatform.domain.model.Order;
-import dev.study.orderplatform.domain.model.OrderLine;
 import jakarta.persistence.EntityManager;
 
 @SpringBootTest
@@ -39,14 +38,13 @@ class OrderPersistenceIntegrationTest {
 
     @Test
     void persistsAndReloadsAnOrderUsingTheProductionMigration() {
-        Currency currency = Currency.getInstance("CAD");
         UUID id = UUID.fromString("01994d56-1200-7000-8000-000000000001");
-        Order order = Order.place(
+        Order order = Order.create(
                 id,
                 "customer-123",
-                currency,
-                List.of(new OrderLine("SKU-1", 2, new Money(new BigDecimal("10.2500"), currency))),
-                Instant.parse("2026-09-14T12:00:00Z"));
+                new Money(new BigDecimal("20.5000"), Currency.getInstance("CAD")),
+                Instant.parse("2026-09-14T12:00:00Z"),
+                LocalDate.parse("2026-09-15"));
 
         adapter.save(order);
         entityManager.flush();
@@ -56,7 +54,9 @@ class OrderPersistenceIntegrationTest {
         assertThat(loaded).isPresent();
         assertThat(loaded.orElseThrow().id()).isEqualTo(order.id());
         assertThat(loaded.orElseThrow().customerId()).isEqualTo(order.customerId());
-        assertThat(loaded.orElseThrow().total()).isEqualTo(order.total());
-        assertThat(loaded.orElseThrow().lines()).isEqualTo(order.lines());
+        assertThat(loaded.orElseThrow().amount()).isEqualTo(order.amount());
+        assertThat(loaded.orElseThrow().status()).isEqualTo(order.status());
+        assertThat(loaded.orElseThrow().createdAt()).isEqualTo(order.createdAt());
+        assertThat(loaded.orElseThrow().creditDate()).isEqualTo(order.creditDate());
     }
 }

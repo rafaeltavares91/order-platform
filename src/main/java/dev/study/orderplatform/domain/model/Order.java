@@ -1,8 +1,8 @@
 package dev.study.orderplatform.domain.model;
 
 import java.time.Instant;
-import java.util.Currency;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -10,19 +10,19 @@ public final class Order {
 
     private final UUID id;
     private final String customerId;
+    private final Money amount;
     private final OrderStatus status;
-    private final List<OrderLine> lines;
-    private final Money total;
     private final Instant createdAt;
+    private final LocalDate creditDate;
     private final long version;
 
     private Order(
             UUID id,
             String customerId,
+            Money amount,
             OrderStatus status,
-            List<OrderLine> lines,
-            Money total,
             Instant createdAt,
+            LocalDate creditDate,
             long version) {
         this.id = Objects.requireNonNull(id, "id must not be null");
         if (customerId == null || customerId.isBlank()) {
@@ -32,37 +32,36 @@ public final class Order {
             throw new IllegalArgumentException("customerId must not exceed 100 characters");
         }
         this.customerId = customerId;
-        this.status = Objects.requireNonNull(status, "status must not be null");
-        this.lines = List.copyOf(lines);
-        if (this.lines.isEmpty()) {
-            throw new IllegalArgumentException("an order must contain at least one line");
+        this.amount = Objects.requireNonNull(amount, "amount must not be null");
+        if (amount.amount().signum() <= 0) {
+            throw new IllegalArgumentException("amount must be greater than zero");
         }
-        this.total = Objects.requireNonNull(total, "total must not be null");
+        this.status = Objects.requireNonNull(status, "status must not be null");
         this.createdAt = Objects.requireNonNull(createdAt, "createdAt must not be null");
+        this.creditDate = Objects.requireNonNull(creditDate, "creditDate must not be null");
+        if (creditDate.isBefore(LocalDate.ofInstant(createdAt, ZoneOffset.UTC))) {
+            throw new IllegalArgumentException("creditDate must not be before the creation date");
+        }
         if (version < 0) {
             throw new IllegalArgumentException("version must not be negative");
         }
         this.version = version;
     }
 
-    public static Order place(UUID id, String customerId, Currency currency, List<OrderLine> lines, Instant createdAt) {
-        Objects.requireNonNull(currency, "currency must not be null");
-        List<OrderLine> copiedLines = List.copyOf(lines);
-        Money total = copiedLines.stream()
-                .map(OrderLine::subtotal)
-                .reduce(Money.zero(currency), Money::add);
-        return new Order(id, customerId, OrderStatus.PENDING, copiedLines, total, createdAt, 0);
+    public static Order create(
+            UUID id, String customerId, Money amount, Instant createdAt, LocalDate creditDate) {
+        return new Order(id, customerId, amount, OrderStatus.CREATED, createdAt, creditDate, 0);
     }
 
     public static Order rehydrate(
             UUID id,
             String customerId,
+            Money amount,
             OrderStatus status,
-            List<OrderLine> lines,
-            Money total,
             Instant createdAt,
+            LocalDate creditDate,
             long version) {
-        return new Order(id, customerId, status, lines, total, createdAt, version);
+        return new Order(id, customerId, amount, status, createdAt, creditDate, version);
     }
 
     public UUID id() {
@@ -73,20 +72,20 @@ public final class Order {
         return customerId;
     }
 
+    public Money amount() {
+        return amount;
+    }
+
     public OrderStatus status() {
         return status;
     }
 
-    public List<OrderLine> lines() {
-        return lines;
-    }
-
-    public Money total() {
-        return total;
-    }
-
     public Instant createdAt() {
         return createdAt;
+    }
+
+    public LocalDate creditDate() {
+        return creditDate;
     }
 
     public long version() {

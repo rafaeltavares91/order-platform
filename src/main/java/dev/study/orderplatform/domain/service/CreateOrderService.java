@@ -2,12 +2,11 @@ package dev.study.orderplatform.application;
 
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.util.Currency;
-import java.util.List;
 
 import dev.study.orderplatform.domain.model.Money;
 import dev.study.orderplatform.domain.model.Order;
-import dev.study.orderplatform.domain.model.OrderLine;
 import dev.study.orderplatform.domain.port.OrderIdGenerator;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
 
@@ -24,29 +23,16 @@ public class CreateOrderService {
     }
 
     public Order create(CreateOrderCommand command) {
-        var lines = command.lines().stream()
-                .map(line -> new OrderLine(
-                        line.sku(),
-                        line.quantity(),
-                        new Money(line.unitPrice(), command.currency())))
-                .toList();
-
-        var order = Order.place(
+        var order = Order.create(
                 orderIdGenerator.nextId(),
                 command.customerId(),
-                command.currency(),
-                lines,
-                clock.instant());
+                new Money(command.amount(), command.currency()),
+                clock.instant(),
+                command.creditDate());
         return saveOrder.save(order);
     }
 
-    public record CreateOrderCommand(String customerId, Currency currency, List<Line> lines) {
-
-        public CreateOrderCommand {
-            lines = List.copyOf(lines);
-        }
-    }
-
-    public record Line(String sku, int quantity, BigDecimal unitPrice) {
+    public record CreateOrderCommand(
+            String customerId, BigDecimal amount, Currency currency, LocalDate creditDate) {
     }
 }

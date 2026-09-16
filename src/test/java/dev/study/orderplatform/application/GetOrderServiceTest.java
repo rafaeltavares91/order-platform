@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Currency;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import dev.study.orderplatform.domain.model.Money;
 import dev.study.orderplatform.domain.model.Order;
-import dev.study.orderplatform.domain.model.OrderLine;
 
 class GetOrderServiceTest {
 
@@ -22,13 +21,12 @@ class GetOrderServiceTest {
 
     @Test
     void returnsTheOrderLoadedById() {
-        Currency currency = Currency.getInstance("CAD");
-        Order order = Order.place(
+        Order order = Order.create(
                 ORDER_ID,
                 "customer-123",
-                currency,
-                List.of(new OrderLine("SKU-1", 2, new Money(new BigDecimal("10.2500"), currency))),
-                Instant.parse("2026-09-14T12:00:00Z"));
+                new Money(new BigDecimal("20.5000"), Currency.getInstance("CAD")),
+                Instant.parse("2026-09-14T12:00:00Z"),
+                LocalDate.parse("2026-09-15"));
         GetOrderService service = new GetOrderService(id -> Optional.of(order));
 
         assertThat(service.getById(ORDER_ID)).isSameAs(order);

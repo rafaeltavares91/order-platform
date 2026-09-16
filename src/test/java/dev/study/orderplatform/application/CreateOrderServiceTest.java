@@ -5,16 +5,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Currency;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
 import dev.study.orderplatform.application.CreateOrderService.CreateOrderCommand;
-import dev.study.orderplatform.application.CreateOrderService.Line;
 import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
 
@@ -33,12 +32,14 @@ class CreateOrderServiceTest {
 
         Order created = service.create(new CreateOrderCommand(
                 "customer-123",
+                new BigDecimal("20.5000"),
                 Currency.getInstance("CAD"),
-                List.of(new Line("SKU-1", 2, new BigDecimal("10.2500")))));
+                LocalDate.parse("2026-09-15")));
 
         assertThat(created).isSameAs(savedOrder.get());
         assertThat(created.id()).isEqualTo(id);
         assertThat(created.createdAt()).isEqualTo(now);
-        assertThat(created.total().amount()).isEqualByComparingTo("20.5000");
+        assertThat(created.amount().amount()).isEqualByComparingTo("20.5000");
+        assertThat(created.creditDate()).isEqualTo(LocalDate.parse("2026-09-15"));
     }
 }

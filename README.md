@@ -32,10 +32,9 @@ curl --request POST http://localhost:8080/orders \
   --header 'Content-Type: application/json' \
   --data '{
     "customerId": "customer-123",
+    "amount": 20.5000,
     "currency": "CAD",
-    "lines": [
-      {"sku": "SKU-1", "quantity": 2, "unitPrice": 10.2500}
-    ]
+    "creditDate": "2026-09-15"
   }'
 ```
 
@@ -76,7 +75,7 @@ Domain and application tests run without Spring. PostgreSQL integration tests us
 - Unversioned resource-oriented URLs
 - Application-generated UUIDv7 identifiers
 - Money: `BigDecimal`, ISO 4217 currency, `numeric(19,4)`, and no implicit rounding
-- Time: `Instant` in Java and `timestamptz` in PostgreSQL; time-dependent behavior receives a `Clock`
+- Time: `Instant`/`timestamptz` for creation events and `LocalDate`/`date` for scheduled business dates; time-dependent behavior receives a `Clock`
 - PostgreSQL 18.6 for local development and tests
 - Optimistic locking through a `version` column
 - Spring MVC and JPA; reactive infrastructure is intentionally absent
