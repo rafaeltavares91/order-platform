@@ -1,4 +1,4 @@
-package dev.study.orderplatform.application;
+package dev.study.orderplatform.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

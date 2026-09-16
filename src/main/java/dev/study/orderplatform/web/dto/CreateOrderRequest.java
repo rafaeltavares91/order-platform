@@ -1,10 +1,13 @@
 package dev.study.orderplatform.web.dto;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Currency;
+import java.util.UUID;
 
-import dev.study.orderplatform.application.CreateOrderService.CreateOrderCommand;
+import dev.study.orderplatform.domain.model.Money;
+import dev.study.orderplatform.domain.model.Order;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
@@ -19,7 +22,12 @@ public record CreateOrderRequest(
         @NotBlank @Pattern(regexp = "^[A-Z]{3}$") String currency,
         @NotNull LocalDate creditDate) {
 
-    public CreateOrderCommand toCommand() {
-        return new CreateOrderCommand(customerId, amount, Currency.getInstance(currency), creditDate);
+    public Order toOrder(UUID id, Instant createdAt) {
+        return Order.create(
+                id,
+                customerId,
+                new Money(amount, Currency.getInstance(currency)),
+                createdAt,
+                creditDate);
     }
 }

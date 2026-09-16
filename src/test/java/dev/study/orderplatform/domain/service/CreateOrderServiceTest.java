@@ -1,4 +1,4 @@
-package dev.study.orderplatform.application;
+package dev.study.orderplatform.domain.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
-import dev.study.orderplatform.application.CreateOrderService.CreateOrderCommand;
+import dev.study.orderplatform.domain.model.Money;
 import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
 
@@ -30,10 +30,11 @@ class CreateOrderServiceTest {
         };
         var service = new CreateOrderService(saveOrder, () -> id, Clock.fixed(now, ZoneOffset.UTC));
 
-        Order created = service.create(new CreateOrderCommand(
+        Order created = service.create((orderId, createdAt) -> Order.create(
+                orderId,
                 "customer-123",
-                new BigDecimal("20.5000"),
-                Currency.getInstance("CAD"),
+                new Money(new BigDecimal("20.5000"), Currency.getInstance("CAD")),
+                createdAt,
                 LocalDate.parse("2026-09-15")));
 
         assertThat(created).isSameAs(savedOrder.get());

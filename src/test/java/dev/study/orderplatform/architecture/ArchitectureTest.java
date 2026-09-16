@@ -22,17 +22,6 @@ class ArchitectureTest {
                     "..web..");
 
     @ArchTest
-    static final ArchRule application_does_not_depend_on_frameworks_or_driven_adapters = noClasses()
-            .that().resideInAPackage("..application..")
-            .should().dependOnClassesThat().resideInAnyPackage(
-                    "org.springframework..",
-                    "jakarta.persistence..",
-                    "..configuration..",
-                    "..identifier..",
-                    "..persistence..",
-                    "..web..");
-
-    @ArchTest
     static final ArchRule web_does_not_depend_on_infrastructure = noClasses()
             .that().resideInAPackage("..web..")
             .should().dependOnClassesThat().resideInAnyPackage("..identifier..", "..persistence..");

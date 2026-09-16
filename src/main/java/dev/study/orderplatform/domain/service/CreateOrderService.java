@@ -1,11 +1,10 @@
-package dev.study.orderplatform.application;
+package dev.study.orderplatform.domain.service;
 
-import java.math.BigDecimal;
 import java.time.Clock;
-import java.time.LocalDate;
-import java.util.Currency;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.function.BiFunction;
 
-import dev.study.orderplatform.domain.model.Money;
 import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.port.OrderIdGenerator;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
@@ -22,17 +21,8 @@ public class CreateOrderService {
         this.clock = clock;
     }
 
-    public Order create(CreateOrderCommand command) {
-        var order = Order.create(
-                orderIdGenerator.nextId(),
-                command.customerId(),
-                new Money(command.amount(), command.currency()),
-                clock.instant(),
-                command.creditDate());
+    public Order create(BiFunction<UUID, Instant, Order> orderFactory) {
+        var order = orderFactory.apply(orderIdGenerator.nextId(), clock.instant());
         return saveOrder.save(order);
-    }
-
-    public record CreateOrderCommand(
-            String customerId, BigDecimal amount, Currency currency, LocalDate creditDate) {
     }
 }
