@@ -1,4 +1,4 @@
-package dev.study.orderplatform.domain.service;
+package dev.study.orderplatform.domain.exception;
 
 import java.util.UUID;
 

@@ -6,11 +6,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dev.study.orderplatform.domain.exception.CustomersNotFoundException;
 import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.model.OrderItem;
 import dev.study.orderplatform.domain.model.OrderItemAllocation;
 import dev.study.orderplatform.domain.port.CustomerExistencePort;
-import dev.study.orderplatform.domain.port.IdentifierGenerator;
+import dev.study.orderplatform.domain.model.IdentifierGenerator;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
 
 public class CreateOrderService {

@@ -26,7 +26,7 @@ import dev.study.orderplatform.domain.model.Money;
 import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.model.OrderItem;
 import dev.study.orderplatform.domain.service.CreateOrderService;
-import dev.study.orderplatform.domain.service.CustomersNotFoundException;
+import dev.study.orderplatform.domain.exception.CustomersNotFoundException;
 import dev.study.orderplatform.domain.service.GetOrderService;
 
 @WebMvcTest(OrderController.class)

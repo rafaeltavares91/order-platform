@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import dev.study.orderplatform.domain.exception.OrderNotFoundException;
 import org.junit.jupiter.api.Test;
 
 import dev.study.orderplatform.domain.model.Money;

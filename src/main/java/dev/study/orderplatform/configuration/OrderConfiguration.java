@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import dev.study.orderplatform.domain.port.CustomerExistencePort;
-import dev.study.orderplatform.domain.port.IdentifierGenerator;
+import dev.study.orderplatform.domain.model.IdentifierGenerator;
 import dev.study.orderplatform.domain.port.LoadOrderPort;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
 

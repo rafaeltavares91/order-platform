@@ -17,13 +17,14 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import dev.study.orderplatform.domain.exception.CustomersNotFoundException;
 import org.junit.jupiter.api.Test;
 
 import dev.study.orderplatform.domain.model.Money;
 import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.model.OrderItemAllocation;
 import dev.study.orderplatform.domain.port.CustomerExistencePort;
-import dev.study.orderplatform.domain.port.IdentifierGenerator;
+import dev.study.orderplatform.domain.model.IdentifierGenerator;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
 
 class CreateOrderServiceTest {
