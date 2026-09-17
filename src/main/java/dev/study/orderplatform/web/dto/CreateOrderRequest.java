@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import dev.study.orderplatform.domain.model.Money;
-import dev.study.orderplatform.domain.service.CreateOrderCommand;
+import dev.study.orderplatform.domain.model.OrderItemAllocation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -19,9 +19,8 @@ public record CreateOrderRequest(
         @NotNull LocalDate creditDate,
         @NotEmpty List<@NotNull @Valid Item> items) {
 
-    public CreateOrderCommand toCommand() {
-        var commandItems = items.stream().map(Item::toCommand).toList();
-        return new CreateOrderCommand(creditDate, commandItems);
+    public List<OrderItemAllocation> toDomain() {
+        return items.stream().map(Item::toDomain).toList();
     }
 
     public record Item(
@@ -30,8 +29,8 @@ public record CreateOrderRequest(
                     BigDecimal amount,
             @NotNull @Pattern(regexp = "^[A-Z]{3}$") String currency) {
 
-        private CreateOrderCommand.Item toCommand() {
-            return new CreateOrderCommand.Item(
+        private OrderItemAllocation toDomain() {
+            return new OrderItemAllocation(
                     customerId,
                     new Money(amount, Currency.getInstance(currency)));
         }

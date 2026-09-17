@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import dev.study.orderplatform.domain.service.CustomersNotFoundException;
 import dev.study.orderplatform.domain.service.OrderNotFoundException;
 
 @RestControllerAdvice
@@ -18,6 +19,16 @@ public class ApiExceptionHandler {
     @ExceptionHandler(OrderNotFoundException.class)
     ResponseEntity<ProblemDetail> handleNotFound(OrderNotFoundException exception) {
         return problem(HttpStatus.NOT_FOUND, "Order not found", exception.getMessage());
+    }
+
+    @ExceptionHandler(CustomersNotFoundException.class)
+    ResponseEntity<ProblemDetail> handleCustomersNotFound(CustomersNotFoundException exception) {
+        var status = HttpStatus.UNPROCESSABLE_CONTENT;
+        var detail = ProblemDetail.forStatusAndDetail(
+                status, "One or more order items reference customers that do not exist");
+        detail.setTitle("Customers not found");
+        detail.setProperty("missingCustomerIds", exception.missingCustomerIds());
+        return ResponseEntity.status(status).body(detail);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

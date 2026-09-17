@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Currency;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,7 @@ import dev.study.orderplatform.domain.model.Money;
 import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.model.OrderItem;
 import dev.study.orderplatform.domain.service.CreateOrderService;
+import dev.study.orderplatform.domain.service.CustomersNotFoundException;
 import dev.study.orderplatform.domain.service.GetOrderService;
 
 @WebMvcTest(OrderController.class)
@@ -46,7 +48,7 @@ class OrderControllerTest {
     @Test
     void createsAnOrderWithMultipleItemsAndReturnsTheCalculatedTotal() throws Exception {
         var order = order();
-        when(createOrderService.create(any())).thenReturn(order);
+        when(createOrderService.create(any(), any())).thenReturn(order);
 
         mockMvc.perform(post("/orders")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,6 +95,21 @@ class OrderControllerTest {
                                 """))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.title").value("Invalid request"));
+    }
+
+    @Test
+    void reportsMissingCustomersWithATreatedResponse() throws Exception {
+        when(createOrderService.create(any(), any()))
+                .thenThrow(new CustomersNotFoundException(Set.of(SECOND_CUSTOMER_ID)));
+
+        mockMvc.perform(post("/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(validRequest()))
+                .andExpect(status().is(422))
+                .andExpect(jsonPath("$.title").value("Customers not found"))
+                .andExpect(jsonPath("$.detail").value(
+                        "One or more order items reference customers that do not exist"))
+                .andExpect(jsonPath("$.missingCustomerIds[0]").value(SECOND_CUSTOMER_ID.toString()));
     }
 
     private static String validRequest() {

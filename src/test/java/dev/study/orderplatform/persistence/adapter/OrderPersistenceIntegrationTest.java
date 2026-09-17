@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Currency;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -46,6 +47,9 @@ class OrderPersistenceIntegrationTest {
 
     @Autowired
     private OrderPersistenceAdapter adapter;
+
+    @Autowired
+    private CustomerPersistenceAdapter customerPersistenceAdapter;
 
     @Autowired
     private SpringDataCustomerRepository customerRepository;
@@ -98,6 +102,18 @@ class OrderPersistenceIntegrationTest {
         assertThat(loaded.document()).isEqualTo("DOC-001");
         assertThat(loaded.name()).isEqualTo("Ada Lovelace");
         assertThat(loaded.balance()).isEqualTo(Money.zero(Currency.getInstance("CAD")));
+    }
+
+    @Test
+    void findsExistingCustomerIdsWithASingleProjectionQuery() {
+        persistCustomers();
+        entityManager.flush();
+        var missingCustomerId = UUID.fromString("01994d56-1200-7000-8000-000000000099");
+
+        var existingIds = customerPersistenceAdapter.findExistingIds(
+                Set.of(FIRST_CUSTOMER_ID, SECOND_CUSTOMER_ID, missingCustomerId));
+
+        assertThat(existingIds).containsExactlyInAnyOrder(FIRST_CUSTOMER_ID, SECOND_CUSTOMER_ID);
     }
 
     @Test
