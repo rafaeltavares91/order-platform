@@ -31,12 +31,23 @@ Create an order:
 curl --request POST http://localhost:8080/orders \
   --header 'Content-Type: application/json' \
   --data '{
-    "customerId": "customer-123",
-    "amount": 20.5000,
-    "currency": "CAD",
-    "creditDate": "2026-09-15"
+    "creditDate": "2026-09-15",
+    "items": [
+      {
+        "customerId": "01994d56-1200-7000-8000-000000000004",
+        "amount": 20.5000,
+        "currency": "CAD"
+      },
+      {
+        "customerId": "01994d56-1200-7000-8000-000000000005",
+        "amount": 4.5000,
+        "currency": "CAD"
+      }
+    ]
   }'
 ```
+
+Customers referenced by `customerId` must already exist. The application calculates `totalAmount` from the items; clients cannot supply it. All items in an order must use the same currency.
 
 Retrieve an order:
 
@@ -61,6 +72,13 @@ Dependencies follow `web -> application -> domain <- persistence`. ArchUnit test
 
 Flyway exclusively owns the schema. Hibernate validates it and never creates or updates it. Production deployments should run Flyway with a dedicated migration identity before rolling out application instances; the runtime database identity should have only data-access privileges.
 
+The current development schema is intentionally defined as a clean baseline migration. If a local volume was created with an older schema, recreate it before starting the application:
+
+```shell
+docker compose down --volumes
+docker compose up -d postgres
+```
+
 ## Tests
 
 ```shell
@@ -78,5 +96,7 @@ Domain and application tests run without Spring. PostgreSQL integration tests us
 - Time: `Instant`/`timestamptz` for creation events and `LocalDate`/`date` for scheduled business dates; time-dependent behavior receives a `Clock`
 - PostgreSQL 18.6 for local development and tests
 - Optimistic locking through a `version` column
+- Orders contain one or more customer items and derive their persisted total from those items
+- Separate `orders`, `order_items`, and `customers` tables without implicit JPA relationships
 - Spring MVC and JPA; reactive infrastructure is intentionally absent
 - Kafka, outbox, sagas, CQRS, Redis, exporters, and resilience libraries are intentionally deferred

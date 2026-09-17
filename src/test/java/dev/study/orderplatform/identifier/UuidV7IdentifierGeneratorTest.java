@@ -4,11 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-class UuidV7OrderIdGeneratorTest {
+class UuidV7IdentifierGeneratorTest {
 
     @Test
     void generatesRfc9562VersionSevenIdentifiers() {
-        var id = new UuidV7OrderIdGenerator().nextId();
+        var id = new UuidV7IdentifierGenerator().nextId();
 
         assertThat(id.version()).isEqualTo(7);
         assertThat(id.variant()).isEqualTo(2);

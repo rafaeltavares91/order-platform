@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import dev.study.orderplatform.domain.port.LoadOrderPort;
-import dev.study.orderplatform.domain.port.OrderIdGenerator;
+import dev.study.orderplatform.domain.port.IdentifierGenerator;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
 
 @Configuration(proxyBeanMethods = false)
@@ -16,8 +16,8 @@ public class OrderConfiguration {
 
     @Bean
     CreateOrderService createOrderService(
-            SaveOrderPort saveOrder, OrderIdGenerator orderIdGenerator, Clock clock) {
-        return new CreateOrderService(saveOrder, orderIdGenerator, clock);
+            SaveOrderPort saveOrder, IdentifierGenerator identifierGenerator, Clock clock) {
+        return new CreateOrderService(saveOrder, identifierGenerator, clock);
     }
 
     @Bean

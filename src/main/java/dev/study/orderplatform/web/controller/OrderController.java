@@ -31,7 +31,7 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderResponse> create(@Valid @RequestBody CreateOrderRequest request) {
-        var order = createOrderService.create(request::toOrder);
+        var order = createOrderService.create(request.toCommand());
         return ResponseEntity.created(URI.create("/orders/" + order.id())).body(OrderResponse.from(order));
     }
 

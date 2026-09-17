@@ -1,28 +1,32 @@
 package dev.study.orderplatform.domain.service;
 
 import java.time.Clock;
-import java.time.Instant;
-import java.util.UUID;
-import java.util.function.BiFunction;
 
 import dev.study.orderplatform.domain.model.Order;
-import dev.study.orderplatform.domain.port.OrderIdGenerator;
+import dev.study.orderplatform.domain.model.OrderItem;
+import dev.study.orderplatform.domain.port.IdentifierGenerator;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
 
 public class CreateOrderService {
 
     private final SaveOrderPort saveOrder;
-    private final OrderIdGenerator orderIdGenerator;
+    private final IdentifierGenerator identifierGenerator;
     private final Clock clock;
 
-    public CreateOrderService(SaveOrderPort saveOrder, OrderIdGenerator orderIdGenerator, Clock clock) {
+    public CreateOrderService(SaveOrderPort saveOrder, IdentifierGenerator identifierGenerator, Clock clock) {
         this.saveOrder = saveOrder;
-        this.orderIdGenerator = orderIdGenerator;
+        this.identifierGenerator = identifierGenerator;
         this.clock = clock;
     }
 
-    public Order create(BiFunction<UUID, Instant, Order> orderFactory) {
-        var order = orderFactory.apply(orderIdGenerator.nextId(), clock.instant());
+    public Order create(CreateOrderCommand command) {
+        var orderId = identifierGenerator.nextId();
+        var now = clock.instant();
+        var items = command.items().stream()
+                .map(item -> OrderItem.create(
+                        identifierGenerator.nextId(), orderId, item.customerId(), item.amount(), now))
+                .toList();
+        var order = Order.create(orderId, command.creditDate(), items, now);
         return saveOrder.save(order);
     }
 }

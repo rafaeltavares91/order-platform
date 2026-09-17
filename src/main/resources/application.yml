@@ -1,6 +1,9 @@
 spring:
   application:
     name: order-platform
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/order_platform}
     username: ${DB_USERNAME:order_platform}

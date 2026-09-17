@@ -2,7 +2,7 @@ package dev.study.orderplatform.domain.port;
 
 import java.util.UUID;
 
-public interface OrderIdGenerator {
+public interface IdentifierGenerator {
 
     UUID nextId();
 }

@@ -10,6 +10,8 @@ import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.port.LoadOrderPort;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
 import dev.study.orderplatform.persistence.entity.OrderEntity;
+import dev.study.orderplatform.persistence.entity.OrderItemEntity;
+import dev.study.orderplatform.persistence.repository.SpringDataOrderItemRepository;
 import dev.study.orderplatform.persistence.repository.SpringDataOrderRepository;
 import jakarta.persistence.EntityManager;
 
@@ -18,10 +20,15 @@ public class OrderPersistenceAdapter implements SaveOrderPort, LoadOrderPort {
 
     private final EntityManager entityManager;
     private final SpringDataOrderRepository repository;
+    private final SpringDataOrderItemRepository itemRepository;
 
-    public OrderPersistenceAdapter(EntityManager entityManager, SpringDataOrderRepository repository) {
+    public OrderPersistenceAdapter(
+            EntityManager entityManager,
+            SpringDataOrderRepository repository,
+            SpringDataOrderItemRepository itemRepository) {
         this.entityManager = entityManager;
         this.repository = repository;
+        this.itemRepository = itemRepository;
     }
 
     @Override
@@ -29,12 +36,20 @@ public class OrderPersistenceAdapter implements SaveOrderPort, LoadOrderPort {
     public Order save(Order order) {
         var entity = OrderEntity.from(order);
         entityManager.persist(entity);
-        return entity.toDomain();
+        for (var index = 0; index < order.items().size(); index++) {
+            entityManager.persist(OrderItemEntity.from(order.items().get(index), index));
+        }
+        return order;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<Order> findById(UUID id) {
-        return repository.findById(id).map(OrderEntity::toDomain);
+        return repository.findById(id).map(entity -> {
+            var items = itemRepository.findAllByOrderIdOrderByItemIndex(id).stream()
+                    .map(OrderItemEntity::toDomain)
+                    .toList();
+            return entity.toDomain(items);
+        });
     }
 }
