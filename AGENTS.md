@@ -10,22 +10,27 @@ Do not add frameworks, dependencies, infrastructure, or architectural patterns w
 
 ## Architecture
 
-This is a single-module, pragmatic hexagonal architecture:
+This is a single-module application organized as a Pragmatic Layered Architecture with Domain Separation:
 
 - `domain.model`: entities, value objects, and business invariants.
 - `domain.service`: use-case coordination.
-- `domain.port`: contracts for external capabilities.
+- `domain.port`: existing contracts for external capabilities where an interface provides concrete isolation or testability value.
 - `web`: HTTP controllers, DTOs, and error handling.
-- `persistence`: JPA entities, repositories, and adapters.
+- `persistence`: JPA entities, Spring Data repositories, persistence operations, and implementations of relevant domain boundary contracts.
 - `identifier`: identifier generation.
 - `configuration`: Spring wiring.
 
-The domain is the center:
+Keep the layer and representation boundaries clear:
 
 - Domain code must not depend on Spring, JPA, web DTOs, persistence entities, or infrastructure details.
-- Domain services may depend on domain ports; infrastructure implements those ports.
+- HTTP DTOs, persistence entities, and domain models are separate representations. Do not reuse one representation across boundaries merely for convenience.
+- Services coordinate application and use-case behavior. Do not introduce a separate application layer unless a concrete need emerges.
 - Controllers may call domain services directly. Do not add interfaces solely for layering symmetry.
-- External representations such as HTTP DTOs, persistence entities, and future event/message schemas are separate from domain models. Do not reuse domain objects as transport or persistence models for convenience.
+- Introduce interfaces and abstractions at meaningful boundaries when they isolate an external capability or materially improve testability.
+- Do not add ports, adapters, interactors, application layers, repository interfaces, or other indirection solely to conform to a named architectural style.
+- Existing ports and adapters that provide concrete value should not be removed merely because the project is not described as Hexagonal Architecture.
+- Favor correctness, clarity, maintainability, and testability over architectural purity. Add complexity only for a concrete requirement.
+
 ## Domain and Data Rules
 
 - Keep business rules and invariants in domain objects; services coordinate behavior that does not belong to one object.
