@@ -2,66 +2,50 @@
 
 ## Project
 
-Order Platform is a production-oriented learning project for order processing. Favor correctness, clarity, and reviewable changes. Add complexity only for a concrete requirement.
+Order Platform is a production-oriented learning project. Favor correctness, clarity, maintainability, testability, and reviewable changes. Add complexity only for a concrete requirement.
 
-Core stack: Java 25, Spring Boot, Gradle, PostgreSQL, Flyway, JUnit 5, Mockito, AssertJ, Testcontainers, and Docker Compose.
-
-Do not add frameworks, dependencies, infrastructure, or architectural patterns without explaining the need and trade-offs. Kafka, outbox, sagas, CQRS, Redis, and observability infrastructure remain deferred until required.
+Stack: Java 25, Spring Boot, Gradle, PostgreSQL, Flyway, JUnit 5, Mockito, AssertJ, Testcontainers, and Docker Compose. Do not add frameworks, dependencies, infrastructure, or architectural patterns without explaining the need and trade-offs. Kafka, outbox, sagas, CQRS, Redis, and observability infrastructure remain deferred until required.
 
 ## Architecture
 
-This is a single-module application organized as a Pragmatic Layered Architecture with Domain Separation:
+This is a single-module **Pragmatic Layered Architecture with Domain Separation**:
 
-- `domain.model`: entities, value objects, and business invariants.
-- `domain.service`: use-case coordination.
-- `domain.port`: existing contracts for external capabilities where an interface provides concrete isolation or testability value.
-- `web`: HTTP controllers, DTOs, and error handling.
-- `persistence`: JPA entities, Spring Data repositories, persistence operations, and implementations of relevant domain boundary contracts.
-- `identifier`: identifier generation.
-- `configuration`: Spring wiring.
+- `domain.model`: entities, value objects, and invariants; `domain.service`: use-case coordination; `domain.port`: useful external-boundary contracts.
+- `web`: controllers, DTOs, and errors; `persistence`: JPA entities, repositories, and persistence operations; `identifier`: ID generation; `configuration`: Spring wiring.
 
-Keep the layer and representation boundaries clear:
+Rules:
 
-- Domain code must not depend on Spring, JPA, web DTOs, persistence entities, or infrastructure details.
-- HTTP DTOs, persistence entities, and domain models are separate representations. Do not reuse one representation across boundaries merely for convenience.
-- Services coordinate application and use-case behavior. Do not introduce a separate application layer unless a concrete need emerges.
-- Controllers may call domain services directly. Do not add interfaces solely for layering symmetry.
-- Introduce interfaces and abstractions at meaningful boundaries when they isolate an external capability or materially improve testability.
-- Do not add ports, adapters, interactors, application layers, repository interfaces, or other indirection solely to conform to a named architectural style.
-- Existing ports and adapters that provide concrete value should not be removed merely because the project is not described as Hexagonal Architecture.
-- Favor correctness, clarity, maintainability, and testability over architectural purity. Add complexity only for a concrete requirement.
+- Domain code must remain independent from Spring, JPA, web DTOs, persistence entities, and infrastructure representations.
+- HTTP DTOs, persistence entities, and domain models are separate representations; map them explicitly rather than reusing them for convenience.
+- Services coordinate use cases; controllers may call them directly. Add a separate application layer only for a concrete need.
+- Introduce interfaces at meaningful external boundaries when they improve isolation or testability. Do not add or remove ports, adapters, interactors, repository interfaces, or other indirection merely to match an architectural style.
 
-## Domain and Data Rules
+## Domain and Data
 
-- Keep business rules and invariants in domain objects; services coordinate behavior that does not belong to one object.
+- Keep business invariants in domain objects; services coordinate behavior spanning objects or external capabilities.
 - Prefer immutable types, meaningful value objects, constructor injection, and standard-library solutions.
-- Use application-generated UUIDv7 identifiers.
-- Represent money with `BigDecimal` and ISO 4217 currency using scale 4, with no implicit rounding.
-- Use `Instant` for creation events and `LocalDate` for business dates. Inject `Clock` into time-dependent behavior.
-- Flyway exclusively owns schema changes. Hibernate validates the schema; it must not create or update it.
-- Consider transaction, network, and messaging failure modes explicitly.
+- Generate UUIDv7 identifiers in the application.
+- Represent money with `BigDecimal` and ISO 4217 currency at scale 4, without implicit rounding.
+- Use `Instant` for creation events and `LocalDate` for business dates; inject `Clock` for time-dependent behavior.
+- Flyway exclusively owns schema changes; Hibernate only validates. Consider transaction, network, and messaging failures explicitly.
 
 ## Implementation
 
-Before changing code, inspect the relevant implementation and tests. Make the smallest coherent change and extend existing conventions.
+Inspect relevant code and tests first. Make the smallest coherent change, preserve existing conventions, and avoid unrelated refactors or changes to APIs, schemas, dependencies, or boundaries.
 
-Use modern, idiomatic Java. Prefer small cohesive classes, records for immutable carriers, and `var` where the inferred type is obvious. Avoid field injection, unnecessary inheritance, speculative abstractions, and comments that restate the code.
+Use modern, idiomatic Java: small cohesive classes, records for immutable carriers, and `var` when inference is obvious. Avoid field injection, unnecessary inheritance, speculative abstractions, and comments that restate code. Explain significant architectural choices.
 
-Do not perform unrelated refactors or change public APIs, database schemas, dependencies, or architectural boundaries unless the task requires it. Explain significant architectural choices before implementing them.
+## Testing Strategy
 
-## Testing and Verification
+Use the smallest useful scope and test observable behavior rather than implementation details:
 
-Tests are part of the change:
+- **Services:** focused, fast, deterministic unit tests without Spring. Mock external collaborators, not domain objects. Cover meaningful behavior, rules, errors, and branches with JUnit 5, Mockito, and AssertJ.
+- **Controllers/APIs:** application integration tests covering `HTTP -> controller -> service -> persistence -> PostgreSQL`. Use the appropriate Spring context, Testcontainers, real PostgreSQL, and Flyway; do not mock services or persistence. Verify contracts, validation, errors, and relevant state without duplicating service tests.
+- **Persistence:** ordinarily covered through application integration tests. Add dedicated integration tests only for custom queries, important constraints, non-trivial mappings, locking/concurrency, or transaction behavior. Do not test simple JPA/framework behavior for coverage.
+- **General:** add regression coverage when practical. Do not start Spring for pure unit tests, duplicate assertions without added value, or create artificial tests solely to reach a coverage percentage.
 
-1. Prefer unit tests for domain behavior.
-2. Use focused Spring tests only when framework integration matters.
-3. Use Testcontainers for real PostgreSQL behavior.
-4. Add a regression test for bug fixes when practical.
-
-Test observable behavior, not implementation details. Mock external boundaries rather than domain objects.
-
-After changes:
+## Verification
 
 - Compile and run relevant tests; run `./gradlew test` when practical.
-- Report commands actually executed, failures, and skipped tests clearly.
+- Report commands executed, failures, and skipped tests.
 - Do not claim unverified behavior works.

@@ -88,7 +88,15 @@ docker compose up -d postgres
 ./gradlew test
 ```
 
-Domain and service tests run without Spring. PostgreSQL integration tests use Testcontainers and are skipped when Docker is unavailable; CI should provide Docker so those tests always execute.
+The project uses a pragmatic testing strategy aligned with its layered architecture:
+
+- Domain and service behavior is covered by focused, fast unit tests without Spring.
+- Controller and API behavior should be covered by application integration tests exercising the complete HTTP-to-PostgreSQL flow without mocked services or repositories.
+- Testcontainers provides real PostgreSQL instances and Flyway initializes integration-test schemas.
+- Dedicated persistence integration tests are reserved for custom queries, important constraints, non-trivial mappings, locking, concurrency, or transaction behavior.
+- Tests target meaningful observable behavior rather than framework internals or a numeric coverage percentage.
+
+Database-backed tests are skipped when Docker is unavailable; CI should provide Docker so integration tests always execute.
 
 ## Explicit initial decisions
 
