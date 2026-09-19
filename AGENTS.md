@@ -11,7 +11,7 @@ Stack: Java 25, Spring Boot, Gradle, PostgreSQL, Flyway, JUnit 5, Mockito, Asser
 This is a single-module **Pragmatic Layered Architecture with Domain Separation**:
 
 - `domain.model`: entities, value objects, and invariants; `domain.service`: use-case coordination; `domain.port`: useful external-boundary contracts.
-- `web`: controllers, DTOs, and errors; `persistence`: JPA entities, repositories, and persistence operations; `identifier`: ID generation; `configuration`: Spring wiring.
+- `web`: controllers, DTOs, and errors; `persistence`: JPA entities, repositories, persistence operations, and infrastructure adapters such as ID generation; `configuration`: Spring wiring.
 
 Rules:
 

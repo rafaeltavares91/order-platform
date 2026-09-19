@@ -70,8 +70,7 @@ The project follows a **Pragmatic Layered Architecture with Domain Separation**.
 - `domain.service` coordinates application and use-case behavior.
 - `domain.port` contains existing contracts for external capabilities where abstraction provides concrete isolation or testability value.
 - `web.controller`, `web.dto`, and `web.error` expose the HTTP API.
-- `persistence.entity`, `persistence.repository`, and `persistence.adapter` implement explicit persistence behavior with JPA and Spring Data.
-- `identifier` provides application-generated identifiers.
+- `persistence.entity`, `persistence.repository`, and `persistence.adapter` implement explicit infrastructure behavior, including JPA persistence and UUID generation.
 - `configuration` provides Spring wiring.
 
 Domain models remain independent from HTTP DTOs, JPA entities, and framework-specific representations. Web DTOs, persistence entities, and domain models are mapped explicitly and are not reused across boundaries merely for convenience. Services may depend on interfaces for meaningful external boundaries, while controllers may call services directly.

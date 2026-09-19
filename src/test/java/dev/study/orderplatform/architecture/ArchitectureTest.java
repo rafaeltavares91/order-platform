@@ -17,12 +17,11 @@ class ArchitectureTest {
                     "jakarta.persistence..",
                     "..application..",
                     "..configuration..",
-                    "..identifier..",
                     "..persistence..",
                     "..web..");
 
     @ArchTest
     static final ArchRule web_does_not_depend_on_infrastructure = noClasses()
             .that().resideInAPackage("..web..")
-            .should().dependOnClassesThat().resideInAnyPackage("..identifier..", "..persistence..");
+            .should().dependOnClassesThat().resideInAnyPackage("..persistence..");
 }
