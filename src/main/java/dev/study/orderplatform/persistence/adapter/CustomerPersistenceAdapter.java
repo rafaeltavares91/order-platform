@@ -7,14 +7,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import dev.study.orderplatform.domain.port.CustomerExistencePort;
-import dev.study.orderplatform.persistence.repository.SpringDataCustomerRepository;
+import dev.study.orderplatform.persistence.repository.CustomerRepository;
 
 @Repository
 public class CustomerPersistenceAdapter implements CustomerExistencePort {
 
-    private final SpringDataCustomerRepository repository;
+    private final CustomerRepository repository;
 
-    public CustomerPersistenceAdapter(SpringDataCustomerRepository repository) {
+    public CustomerPersistenceAdapter(CustomerRepository repository) {
         this.repository = repository;
     }
 

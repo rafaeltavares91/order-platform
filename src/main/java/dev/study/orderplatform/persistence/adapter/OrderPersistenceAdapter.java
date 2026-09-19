@@ -11,21 +11,21 @@ import dev.study.orderplatform.domain.port.LoadOrderPort;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
 import dev.study.orderplatform.persistence.entity.OrderEntity;
 import dev.study.orderplatform.persistence.entity.OrderItemEntity;
-import dev.study.orderplatform.persistence.repository.SpringDataOrderItemRepository;
-import dev.study.orderplatform.persistence.repository.SpringDataOrderRepository;
+import dev.study.orderplatform.persistence.repository.OrderItemRepository;
+import dev.study.orderplatform.persistence.repository.OrderRepository;
 import jakarta.persistence.EntityManager;
 
 @Repository
 public class OrderPersistenceAdapter implements SaveOrderPort, LoadOrderPort {
 
     private final EntityManager entityManager;
-    private final SpringDataOrderRepository repository;
-    private final SpringDataOrderItemRepository itemRepository;
+    private final OrderRepository repository;
+    private final OrderItemRepository itemRepository;
 
     public OrderPersistenceAdapter(
             EntityManager entityManager,
-            SpringDataOrderRepository repository,
-            SpringDataOrderItemRepository itemRepository) {
+            OrderRepository repository,
+            OrderItemRepository itemRepository) {
         this.entityManager = entityManager;
         this.repository = repository;
         this.itemRepository = itemRepository;

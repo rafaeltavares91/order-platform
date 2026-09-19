@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import dev.study.orderplatform.persistence.entity.CustomerEntity;
 
-public interface SpringDataCustomerRepository extends JpaRepository<CustomerEntity, UUID> {
+public interface CustomerRepository extends JpaRepository<CustomerEntity, UUID> {
 
     Optional<CustomerEntity> findByDocument(String document);
 

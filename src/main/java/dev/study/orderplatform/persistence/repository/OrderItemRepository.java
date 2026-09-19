@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import dev.study.orderplatform.persistence.entity.OrderItemEntity;
 
-public interface SpringDataOrderItemRepository extends JpaRepository<OrderItemEntity, UUID> {
+public interface OrderItemRepository extends JpaRepository<OrderItemEntity, UUID> {
 
     List<OrderItemEntity> findAllByOrderIdOrderByItemIndex(UUID orderId);
 }
