@@ -57,10 +57,19 @@ class OrderApiIntegrationTest extends PostgreSqlIntegrationTest {
         assertThat(location).isNotBlank();
 
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM orders", Long.class)).isEqualTo(1L);
+        var persistedOrder = jdbcTemplate.queryForMap("SELECT id, public_id FROM orders");
+        assertThat(persistedOrder.get("id")).isInstanceOf(Long.class);
+        assertThat(persistedOrder.get("public_id"))
+                .hasToString(location.substring("/orders/".length()));
         assertThat(jdbcTemplate.queryForObject("SELECT total_amount FROM orders", BigDecimal.class))
                 .isEqualByComparingTo("25.0000");
         assertThat(jdbcTemplate.queryForList(
-                        "SELECT customer_id, amount FROM order_items ORDER BY item_index"))
+                        """
+                        SELECT customers.public_id AS customer_id, order_items.amount
+                        FROM order_items
+                        JOIN customers ON customers.id = order_items.customer_id
+                        ORDER BY order_items.item_index
+                        """))
                 .satisfiesExactly(
                         row -> assertItem(row, FIRST_CUSTOMER_ID, "20.5000"),
                         row -> assertItem(row, SECOND_CUSTOMER_ID, "4.5000"));

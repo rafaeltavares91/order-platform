@@ -17,8 +17,7 @@ public record OrderResponse(
         String currency,
         List<Item> items,
         Instant createdAt,
-        Instant updatedAt,
-        long version) {
+        Instant updatedAt) {
 
     public static OrderResponse from(Order order) {
         return new OrderResponse(
@@ -29,8 +28,7 @@ public record OrderResponse(
                 order.totalAmount().currency().getCurrencyCode(),
                 order.items().stream().map(Item::from).toList(),
                 order.createdAt(),
-                order.updatedAt(),
-                order.version());
+                order.updatedAt());
     }
 
     public record Item(
@@ -40,8 +38,7 @@ public record OrderResponse(
             String currency,
             String status,
             Instant createdAt,
-            Instant updatedAt,
-            long version) {
+            Instant updatedAt) {
 
         private static Item from(OrderItem item) {
             return new Item(
@@ -51,8 +48,7 @@ public record OrderResponse(
                     item.amount().currency().getCurrencyCode(),
                     item.status().name(),
                     item.createdAt(),
-                    item.updatedAt(),
-                    item.version());
+                    item.updatedAt());
         }
     }
 }

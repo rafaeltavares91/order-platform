@@ -30,7 +30,6 @@ class OrderItemTest {
         assertThat(item.status()).isEqualTo(OrderItemStatus.PENDING);
         assertThat(item.createdAt()).isEqualTo(CREATED_AT);
         assertThat(item.updatedAt()).isEqualTo(CREATED_AT);
-        assertThat(item.version()).isZero();
     }
 
     @Test

@@ -24,7 +24,6 @@ class CustomerTest {
         assertThat(customer.balance()).isEqualTo(Money.zero(Currency.getInstance("CAD")));
         assertThat(customer.createdAt()).isEqualTo(CREATED_AT);
         assertThat(customer.updatedAt()).isEqualTo(CREATED_AT);
-        assertThat(customer.version()).isZero();
     }
 
     @Test

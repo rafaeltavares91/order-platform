@@ -23,8 +23,8 @@ public abstract class PostgreSqlIntegrationTest {
         jdbcTemplate.update(
                 """
                 INSERT INTO customers (
-                    id, document, name, balance, balance_currency, created_at, updated_at, version
-                ) VALUES (?::uuid, ?, ?, 0.0000, 'CAD', '2026-09-14T12:00:00Z', '2026-09-14T12:00:00Z', 0)
+                    public_id, document, name, balance, balance_currency, created_at, updated_at
+                ) VALUES (?::uuid, ?, ?, 0.0000, 'CAD', '2026-09-14T12:00:00Z', '2026-09-14T12:00:00Z')
                 """,
                 id,
                 document,

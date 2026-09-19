@@ -12,25 +12,38 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "order_items")
+@Table(
+        name = "order_items",
+        uniqueConstraints = {
+            @UniqueConstraint(name = "uq_order_items_public_id", columnNames = "public_id"),
+            @UniqueConstraint(name = "uq_order_items_order_index", columnNames = {"order_id", "item_index"})
+        })
 public class OrderItemEntity {
 
     @Id
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_item_id_generator")
+    @SequenceGenerator(name = "order_item_id_generator", sequenceName = "order_items_id_seq", allocationSize = 1)
+    private Long id;
+
+    @Column(name = "public_id", nullable = false, updatable = false)
+    private UUID publicId;
 
     @Column(name = "order_id", nullable = false)
-    private UUID orderId;
+    private Long orderId;
 
     @Column(name = "item_index", nullable = false)
     private int itemIndex;
 
     @Column(name = "customer_id", nullable = false)
-    private UUID customerId;
+    private Long customerId;
 
     @Column(nullable = false, precision = Money.PRECISION, scale = Money.SCALE)
     private BigDecimal amount;
@@ -48,37 +61,35 @@ public class OrderItemEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @Version
-    @Column(nullable = false)
-    private long version;
-
     protected OrderItemEntity() {
     }
 
-    public static OrderItemEntity from(OrderItem item, int itemIndex) {
+    public static OrderItemEntity from(OrderItem item, Long orderId, Long customerId, int itemIndex) {
         var entity = new OrderItemEntity();
-        entity.id = item.id();
-        entity.orderId = item.orderId();
+        entity.publicId = item.id();
+        entity.orderId = orderId;
         entity.itemIndex = itemIndex;
-        entity.customerId = item.customerId();
+        entity.customerId = customerId;
         entity.amount = item.amount().amount();
         entity.currency = item.amount().currency().getCurrencyCode();
         entity.status = item.status();
         entity.createdAt = item.createdAt();
         entity.updatedAt = item.updatedAt();
-        entity.version = item.version();
         return entity;
     }
 
-    public OrderItem toDomain() {
+    public OrderItem toDomain(UUID orderPublicId, UUID customerPublicId) {
         return OrderItem.rehydrate(
-                id,
-                orderId,
-                customerId,
+                publicId,
+                orderPublicId,
+                customerPublicId,
                 new Money(amount, Currency.getInstance(currency)),
                 status,
                 createdAt,
-                updatedAt,
-                version);
+                updatedAt);
+    }
+
+    public Long customerInternalId() {
+        return customerId;
     }
 }

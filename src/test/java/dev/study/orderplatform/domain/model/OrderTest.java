@@ -36,7 +36,6 @@ class OrderTest {
         assertThat(order.items()).containsExactly(firstItem, secondItem);
         assertThat(order.createdAt()).isEqualTo(CREATED_AT);
         assertThat(order.updatedAt()).isEqualTo(CREATED_AT);
-        assertThat(order.version()).isZero();
     }
 
     @Test
@@ -82,8 +81,7 @@ class OrderTest {
                         money("99.0000"),
                         List.of(item),
                         CREATED_AT,
-                        CREATED_AT,
-                        0))
+                        CREATED_AT))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("totalAmount must equal the sum of item amounts");
     }

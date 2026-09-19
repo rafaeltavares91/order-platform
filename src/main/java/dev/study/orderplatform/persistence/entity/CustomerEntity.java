@@ -9,19 +9,29 @@ import dev.study.orderplatform.domain.model.Customer;
 import dev.study.orderplatform.domain.model.Money;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.Version;
 
 @Entity
 @Table(
         name = "customers",
-        uniqueConstraints = @UniqueConstraint(name = "uq_customers_document", columnNames = "document"))
+        uniqueConstraints = {
+            @UniqueConstraint(name = "uq_customers_public_id", columnNames = "public_id"),
+            @UniqueConstraint(name = "uq_customers_document", columnNames = "document")
+        })
 public class CustomerEntity {
 
     @Id
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_id_generator")
+    @SequenceGenerator(name = "customer_id_generator", sequenceName = "customers_id_seq", allocationSize = 1)
+    private Long id;
+
+    @Column(name = "public_id", nullable = false, updatable = false)
+    private UUID publicId;
 
     @Column(nullable = false, length = 50)
     private String document;
@@ -41,34 +51,36 @@ public class CustomerEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @Version
-    @Column(nullable = false)
-    private long version;
-
     protected CustomerEntity() {
     }
 
     public static CustomerEntity from(Customer customer) {
         var entity = new CustomerEntity();
-        entity.id = customer.id();
+        entity.publicId = customer.id();
         entity.document = customer.document();
         entity.name = customer.name();
         entity.balance = customer.balance().amount();
         entity.balanceCurrency = customer.balance().currency().getCurrencyCode();
         entity.createdAt = customer.createdAt();
         entity.updatedAt = customer.updatedAt();
-        entity.version = customer.version();
         return entity;
     }
 
     public Customer toDomain() {
         return Customer.rehydrate(
-                id,
+                publicId,
                 document,
                 name,
                 new Money(balance, Currency.getInstance(balanceCurrency)),
                 createdAt,
-                updatedAt,
-                version);
+                updatedAt);
+    }
+
+    public Long internalId() {
+        return id;
+    }
+
+    public UUID publicId() {
+        return publicId;
     }
 }

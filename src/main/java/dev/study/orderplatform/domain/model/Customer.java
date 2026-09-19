@@ -13,7 +13,6 @@ public final class Customer {
     private final Money balance;
     private final Instant createdAt;
     private final Instant updatedAt;
-    private final long version;
 
     private Customer(
             UUID id,
@@ -21,8 +20,7 @@ public final class Customer {
             String name,
             Money balance,
             Instant createdAt,
-            Instant updatedAt,
-            long version) {
+            Instant updatedAt) {
         this.id = Objects.requireNonNull(id, "id must not be null");
         this.document = requireText(document, "document", 50);
         this.name = requireText(name, "name", 200);
@@ -32,14 +30,10 @@ public final class Customer {
         if (updatedAt.isBefore(createdAt)) {
             throw new IllegalArgumentException("updatedAt must not be before createdAt");
         }
-        if (version < 0) {
-            throw new IllegalArgumentException("version must not be negative");
-        }
-        this.version = version;
     }
 
     public static Customer create(UUID id, String document, String name, Currency currency, Instant createdAt) {
-        return new Customer(id, document, name, Money.zero(currency), createdAt, createdAt, 0);
+        return new Customer(id, document, name, Money.zero(currency), createdAt, createdAt);
     }
 
     public static Customer rehydrate(
@@ -48,9 +42,8 @@ public final class Customer {
             String name,
             Money balance,
             Instant createdAt,
-            Instant updatedAt,
-            long version) {
-        return new Customer(id, document, name, balance, createdAt, updatedAt, version);
+            Instant updatedAt) {
+        return new Customer(id, document, name, balance, createdAt, updatedAt);
     }
 
     private static String requireText(String value, String field, int maximumLength) {
@@ -87,7 +80,4 @@ public final class Customer {
         return updatedAt;
     }
 
-    public long version() {
-        return version;
-    }
 }

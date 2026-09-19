@@ -17,7 +17,6 @@ public final class Order {
     private final List<OrderItem> items;
     private final Instant createdAt;
     private final Instant updatedAt;
-    private final long version;
 
     private Order(
             UUID id,
@@ -26,8 +25,7 @@ public final class Order {
             Money totalAmount,
             List<OrderItem> items,
             Instant createdAt,
-            Instant updatedAt,
-            long version) {
+            Instant updatedAt) {
         this.id = Objects.requireNonNull(id, "id must not be null");
         this.status = Objects.requireNonNull(status, "status must not be null");
         this.creditDate = Objects.requireNonNull(creditDate, "creditDate must not be null");
@@ -40,11 +38,6 @@ public final class Order {
         if (creditDate.isBefore(LocalDate.ofInstant(createdAt, ZoneOffset.UTC))) {
             throw new IllegalArgumentException("creditDate must not be before the creation date");
         }
-        if (version < 0) {
-            throw new IllegalArgumentException("version must not be negative");
-        }
-        this.version = version;
-
         var calculatedTotal = calculateTotal(this.items);
         this.totalAmount = Objects.requireNonNull(totalAmount, "totalAmount must not be null");
         if (!this.totalAmount.equals(calculatedTotal)) {
@@ -61,8 +54,7 @@ public final class Order {
                 totalAmount,
                 items,
                 createdAt,
-                createdAt,
-                0);
+                createdAt);
     }
 
     public static Order rehydrate(
@@ -72,9 +64,8 @@ public final class Order {
             Money totalAmount,
             List<OrderItem> items,
             Instant createdAt,
-            Instant updatedAt,
-            long version) {
-        return new Order(id, status, creditDate, totalAmount, items, createdAt, updatedAt, version);
+            Instant updatedAt) {
+        return new Order(id, status, creditDate, totalAmount, items, createdAt, updatedAt);
     }
 
     private static List<OrderItem> copyAndValidateItems(UUID orderId, List<OrderItem> items) {
@@ -137,7 +128,4 @@ public final class Order {
         return updatedAt;
     }
 
-    public long version() {
-        return version;
-    }
 }

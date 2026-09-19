@@ -13,7 +13,6 @@ public final class OrderItem {
     private final OrderItemStatus status;
     private final Instant createdAt;
     private final Instant updatedAt;
-    private final long version;
 
     private OrderItem(
             UUID id,
@@ -22,8 +21,7 @@ public final class OrderItem {
             Money amount,
             OrderItemStatus status,
             Instant createdAt,
-            Instant updatedAt,
-            long version) {
+            Instant updatedAt) {
         this.id = Objects.requireNonNull(id, "id must not be null");
         this.orderId = Objects.requireNonNull(orderId, "orderId must not be null");
         this.customerId = Objects.requireNonNull(customerId, "customerId must not be null");
@@ -37,14 +35,10 @@ public final class OrderItem {
         if (updatedAt.isBefore(createdAt)) {
             throw new IllegalArgumentException("updatedAt must not be before createdAt");
         }
-        if (version < 0) {
-            throw new IllegalArgumentException("version must not be negative");
-        }
-        this.version = version;
     }
 
     public static OrderItem create(UUID id, UUID orderId, UUID customerId, Money amount, Instant createdAt) {
-        return new OrderItem(id, orderId, customerId, amount, OrderItemStatus.PENDING, createdAt, createdAt, 0);
+        return new OrderItem(id, orderId, customerId, amount, OrderItemStatus.PENDING, createdAt, createdAt);
     }
 
     public static OrderItem rehydrate(
@@ -54,9 +48,8 @@ public final class OrderItem {
             Money amount,
             OrderItemStatus status,
             Instant createdAt,
-            Instant updatedAt,
-            long version) {
-        return new OrderItem(id, orderId, customerId, amount, status, createdAt, updatedAt, version);
+            Instant updatedAt) {
+        return new OrderItem(id, orderId, customerId, amount, status, createdAt, updatedAt);
     }
 
     public UUID id() {
@@ -87,7 +80,4 @@ public final class OrderItem {
         return updatedAt;
     }
 
-    public long version() {
-        return version;
-    }
 }

@@ -43,4 +43,12 @@ class CustomerPersistenceIntegrationTest extends PostgreSqlIntegrationTest {
         assertThatThrownBy(() -> insertCustomer(SECOND_CUSTOMER_ID, "DOC-001", "Grace Hopper"))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
+
+    @Test
+    void enforcesUniqueCustomerPublicIds() {
+        insertCustomer(FIRST_CUSTOMER_ID, "DOC-001", "Ada Lovelace");
+
+        assertThatThrownBy(() -> insertCustomer(FIRST_CUSTOMER_ID, "DOC-002", "Grace Hopper"))
+                .isInstanceOf(DataIntegrityViolationException.class);
+    }
 }
