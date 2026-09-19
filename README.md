@@ -18,8 +18,13 @@ docker compose up -d postgres
 Run the application:
 
 ```shell
-./gradlew bootRun
+./gradlew bootRun --args='--spring.profiles.active=local'
 ```
+
+The `local` and `dev` profiles create three sample customers on startup. Their fixed IDs are
+`01994d56-1200-7000-8000-000000000004`, `01994d56-1200-7000-8000-000000000005`, and
+`01994d56-1200-7000-8000-000000000006`. Existing sample customers are preserved, so restarting
+the application does not duplicate them.
 
 The default local credentials in `compose.yaml` are development-only. Override `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` in deployed environments.
 
@@ -31,7 +36,7 @@ Create an order:
 curl --request POST http://localhost:8080/orders \
   --header 'Content-Type: application/json' \
   --data '{
-    "creditDate": "2026-09-15",
+    "creditDate": "2099-09-15",
     "items": [
       {
         "customerId": "01994d56-1200-7000-8000-000000000004",
