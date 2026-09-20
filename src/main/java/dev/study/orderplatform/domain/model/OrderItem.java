@@ -52,6 +52,14 @@ public final class OrderItem {
         return new OrderItem(id, orderId, customerId, amount, status, createdAt, updatedAt);
     }
 
+    public OrderItem credit(Instant creditedAt) {
+        Objects.requireNonNull(creditedAt, "creditedAt must not be null");
+        if (status != OrderItemStatus.PENDING) {
+            throw new IllegalStateException("only pending order items can be credited");
+        }
+        return new OrderItem(id, orderId, customerId, amount, OrderItemStatus.CREDITED, createdAt, creditedAt);
+    }
+
     public UUID id() {
         return id;
     }

@@ -23,6 +23,31 @@ spring:
         jdbc:
           time_zone: UTC
         order_inserts: true
+  cloud:
+    aws:
+      endpoint: ${AWS_ENDPOINT:http://localhost:4566}
+      region:
+        static: ${AWS_REGION:us-east-1}
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID:test}
+        secret-key: ${AWS_SECRET_ACCESS_KEY:test}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OIDC_ISSUER_URI:http://localhost:8081/realms/order-platform}
+          jwk-set-uri: ${OIDC_JWK_SET_URI:http://localhost:8081/realms/order-platform/protocol/openid-connect/certs}
+
+order-platform:
+  messaging:
+    enabled: ${MESSAGING_ENABLED:true}
+    order-events-topic-arn: ${ORDER_EVENTS_TOPIC_ARN:arn:aws:sns:us-east-1:000000000000:order-events}
+    payment-confirmed-queue: ${PAYMENT_CONFIRMED_QUEUE:order-payment-confirmed}
+    outbox:
+      batch-size: ${OUTBOX_BATCH_SIZE:20}
+      poll-delay: ${OUTBOX_POLL_DELAY:1000}
+  security:
+    audience: ${OIDC_AUDIENCE:order-platform-api}
 
 server:
   shutdown: graceful

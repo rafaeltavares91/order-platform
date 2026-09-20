@@ -26,6 +26,7 @@ import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.model.OrderItemAllocation;
 import dev.study.orderplatform.domain.model.OrderItemStatus;
 import dev.study.orderplatform.domain.model.OrderStatus;
+import dev.study.orderplatform.domain.model.PaymentRequested;
 import dev.study.orderplatform.domain.port.CustomerExistencePort;
 import dev.study.orderplatform.domain.port.SaveOrderPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +44,7 @@ class CreateOrderServiceTest {
     private static final UUID SECOND_ITEM_ID = UUID.fromString("01994d56-1200-7000-8000-000000000003");
     private static final UUID FIRST_CUSTOMER_ID = UUID.fromString("01994d56-1200-7000-8000-000000000004");
     private static final UUID SECOND_CUSTOMER_ID = UUID.fromString("01994d56-1200-7000-8000-000000000005");
+    private static final UUID EVENT_ID = UUID.fromString("01994d56-1200-7000-8000-000000000008");
     private static final Instant NOW = Instant.parse("2026-09-14T12:00:00Z");
     private static final LocalDate CREDIT_DATE = LocalDate.parse("2026-09-15");
 
@@ -72,14 +74,15 @@ class CreateOrderServiceTest {
                 new OrderItemAllocation(SECOND_CUSTOMER_ID, money("4.5000")));
         when(customerExistence.findExistingIds(Set.of(FIRST_CUSTOMER_ID, SECOND_CUSTOMER_ID)))
                 .thenReturn(Set.of(FIRST_CUSTOMER_ID, SECOND_CUSTOMER_ID));
-        when(identifierGenerator.nextId()).thenReturn(ORDER_ID, FIRST_ITEM_ID, SECOND_ITEM_ID);
+        when(identifierGenerator.nextId()).thenReturn(ORDER_ID, FIRST_ITEM_ID, SECOND_ITEM_ID, EVENT_ID);
         when(clock.instant()).thenReturn(NOW);
-        when(saveOrder.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(saveOrder.save(any(Order.class), any(PaymentRequested.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         var created = service.create(CREDIT_DATE, allocations);
 
         assertThat(created.id()).isEqualTo(ORDER_ID);
-        assertThat(created.status()).isEqualTo(OrderStatus.CREATED);
+        assertThat(created.status()).isEqualTo(OrderStatus.WAITING_PAYMENT);
         assertThat(created.creditDate()).isEqualTo(CREDIT_DATE);
         assertThat(created.totalAmount()).isEqualTo(money("25.0000"));
         assertThat(created.createdAt()).isEqualTo(NOW);
@@ -101,12 +104,16 @@ class CreateOrderServiceTest {
                 });
 
         var savedOrder = ArgumentCaptor.forClass(Order.class);
-        verify(saveOrder).save(savedOrder.capture());
+        var savedEvent = ArgumentCaptor.forClass(PaymentRequested.class);
+        verify(saveOrder).save(savedOrder.capture(), savedEvent.capture());
         assertThat(savedOrder.getValue()).isSameAs(created);
+        assertThat(savedEvent.getValue().eventId()).isEqualTo(EVENT_ID);
+        assertThat(savedEvent.getValue().orderId()).isEqualTo(ORDER_ID);
+        assertThat(savedEvent.getValue().totalAmount()).isEqualTo(money("25.0000"));
         verify(customerExistence).findExistingIds(Set.of(FIRST_CUSTOMER_ID, SECOND_CUSTOMER_ID));
         verify(clock).instant();
 
-        verify(identifierGenerator, times(3)).nextId();
+        verify(identifierGenerator, times(4)).nextId();
     }
 
     @Test
@@ -115,9 +122,10 @@ class CreateOrderServiceTest {
                 new OrderItemAllocation(FIRST_CUSTOMER_ID, money("10.0000")),
                 new OrderItemAllocation(FIRST_CUSTOMER_ID, money("5.0000")));
         when(customerExistence.findExistingIds(Set.of(FIRST_CUSTOMER_ID))).thenReturn(Set.of(FIRST_CUSTOMER_ID));
-        when(identifierGenerator.nextId()).thenReturn(ORDER_ID, FIRST_ITEM_ID, SECOND_ITEM_ID);
+        when(identifierGenerator.nextId()).thenReturn(ORDER_ID, FIRST_ITEM_ID, SECOND_ITEM_ID, EVENT_ID);
         when(clock.instant()).thenReturn(NOW);
-        when(saveOrder.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(saveOrder.save(any(Order.class), any(PaymentRequested.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         var created = service.create(CREDIT_DATE, allocations);
 
@@ -144,7 +152,7 @@ class CreateOrderServiceTest {
 
         verify(customerExistence).findExistingIds(
                 new LinkedHashSet<>(List.of(FIRST_CUSTOMER_ID, firstMissingCustomerId, secondMissingCustomerId)));
-        verify(saveOrder, never()).save(any());
+        verify(saveOrder, never()).save(any(), any());
         verifyNoInteractions(identifierGenerator, clock);
     }
 

@@ -92,4 +92,13 @@ public class OrderItemEntity {
     public Long customerInternalId() {
         return customerId;
     }
+
+    public UUID publicId() {
+        return publicId;
+    }
+
+    public void updateFrom(OrderItem item) {
+        status = item.status();
+        updatedAt = item.updatedAt();
+    }
 }

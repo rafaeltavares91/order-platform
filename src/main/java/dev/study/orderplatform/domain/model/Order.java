@@ -17,6 +17,8 @@ public final class Order {
     private final List<OrderItem> items;
     private final Instant createdAt;
     private final Instant updatedAt;
+    private final String paymentId;
+    private final Instant paidAt;
 
     private Order(
             UUID id,
@@ -25,7 +27,9 @@ public final class Order {
             Money totalAmount,
             List<OrderItem> items,
             Instant createdAt,
-            Instant updatedAt) {
+            Instant updatedAt,
+            String paymentId,
+            Instant paidAt) {
         this.id = Objects.requireNonNull(id, "id must not be null");
         this.status = Objects.requireNonNull(status, "status must not be null");
         this.creditDate = Objects.requireNonNull(creditDate, "creditDate must not be null");
@@ -43,18 +47,41 @@ public final class Order {
         if (!this.totalAmount.equals(calculatedTotal)) {
             throw new IllegalArgumentException("totalAmount must equal the sum of item amounts");
         }
+        if ((paymentId == null) != (paidAt == null)) {
+            throw new IllegalArgumentException("paymentId and paidAt must either both be set or both be null");
+        }
+        if (paymentId != null && paymentId.isBlank()) {
+            throw new IllegalArgumentException("paymentId must not be blank");
+        }
+        this.paymentId = paymentId;
+        this.paidAt = paidAt;
     }
 
     public static Order create(UUID id, LocalDate creditDate, List<OrderItem> items, Instant createdAt) {
         var totalAmount = calculateTotal(items);
         return new Order(
                 id,
-                OrderStatus.CREATED,
+                OrderStatus.WAITING_PAYMENT,
                 creditDate,
                 totalAmount,
                 items,
                 createdAt,
-                createdAt);
+                createdAt,
+                null,
+                null);
+    }
+
+    public static Order rehydrate(
+            UUID id,
+            OrderStatus status,
+            LocalDate creditDate,
+            Money totalAmount,
+            List<OrderItem> items,
+            Instant createdAt,
+            Instant updatedAt,
+            String paymentId,
+            Instant paidAt) {
+        return new Order(id, status, creditDate, totalAmount, items, createdAt, updatedAt, paymentId, paidAt);
     }
 
     public static Order rehydrate(
@@ -65,7 +92,24 @@ public final class Order {
             List<OrderItem> items,
             Instant createdAt,
             Instant updatedAt) {
-        return new Order(id, status, creditDate, totalAmount, items, createdAt, updatedAt);
+        return rehydrate(id, status, creditDate, totalAmount, items, createdAt, updatedAt, null, null);
+    }
+
+    public Order credit(String paymentId, Instant paidAt, Instant updatedAt) {
+        if (status != OrderStatus.WAITING_PAYMENT) {
+            throw new IllegalStateException("only orders waiting for payment can be credited");
+        }
+        var creditedItems = items.stream().map(item -> item.credit(updatedAt)).toList();
+        return new Order(
+                id,
+                OrderStatus.CREDITED,
+                creditDate,
+                totalAmount,
+                creditedItems,
+                createdAt,
+                updatedAt,
+                Objects.requireNonNull(paymentId, "paymentId must not be null"),
+                Objects.requireNonNull(paidAt, "paidAt must not be null"));
     }
 
     private static List<OrderItem> copyAndValidateItems(UUID orderId, List<OrderItem> items) {
@@ -126,6 +170,14 @@ public final class Order {
 
     public Instant updatedAt() {
         return updatedAt;
+    }
+
+    public String paymentId() {
+        return paymentId;
+    }
+
+    public Instant paidAt() {
+        return paidAt;
     }
 
 }

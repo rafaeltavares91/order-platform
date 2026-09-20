@@ -31,7 +31,7 @@ class OrderTest {
         var order = Order.create(ORDER_ID, CREDIT_DATE, List.of(firstItem, secondItem), CREATED_AT);
 
         assertThat(order.id()).isEqualTo(ORDER_ID);
-        assertThat(order.status()).isEqualTo(OrderStatus.CREATED);
+        assertThat(order.status()).isEqualTo(OrderStatus.WAITING_PAYMENT);
         assertThat(order.totalAmount()).isEqualTo(money("25.0000"));
         assertThat(order.items()).containsExactly(firstItem, secondItem);
         assertThat(order.createdAt()).isEqualTo(CREATED_AT);

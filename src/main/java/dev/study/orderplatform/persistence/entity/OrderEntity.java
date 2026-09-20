@@ -55,6 +55,12 @@ public class OrderEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "payment_id", length = 200)
+    private String paymentId;
+
+    @Column(name = "paid_at")
+    private Instant paidAt;
+
     protected OrderEntity() {
     }
 
@@ -67,6 +73,8 @@ public class OrderEntity {
         entity.currency = order.totalAmount().currency().getCurrencyCode();
         entity.createdAt = order.createdAt();
         entity.updatedAt = order.updatedAt();
+        entity.paymentId = order.paymentId();
+        entity.paidAt = order.paidAt();
         return entity;
     }
 
@@ -78,7 +86,16 @@ public class OrderEntity {
                 new Money(totalAmount, Currency.getInstance(currency)),
                 items,
                 createdAt,
-                updatedAt);
+                updatedAt,
+                paymentId,
+                paidAt);
+    }
+
+    public void updateFrom(Order order) {
+        status = order.status();
+        updatedAt = order.updatedAt();
+        paymentId = order.paymentId();
+        paidAt = order.paidAt();
     }
 
     public Long internalId() {

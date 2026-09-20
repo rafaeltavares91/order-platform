@@ -83,4 +83,10 @@ public class CustomerEntity {
     public UUID publicId() {
         return publicId;
     }
+
+    public void updateFrom(Customer customer) {
+        balance = customer.balance().amount();
+        balanceCurrency = customer.balance().currency().getCurrencyCode();
+        updatedAt = customer.updatedAt();
+    }
 }

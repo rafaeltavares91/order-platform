@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.repository.query.Param;
 
 import dev.study.orderplatform.persistence.entity.CustomerEntity;
@@ -16,6 +18,10 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Long> 
     Optional<CustomerEntity> findByDocument(String document);
 
     List<CustomerEntity> findAllByPublicIdIn(Set<UUID> publicIds);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT customer FROM CustomerEntity customer WHERE customer.publicId IN :publicIds ORDER BY customer.publicId")
+    List<CustomerEntity> findAllByPublicIdInForUpdate(Set<UUID> publicIds);
 
     @Query("select customer.publicId from CustomerEntity customer where customer.publicId in :publicIds")
     Set<UUID> findExistingIds(@Param("publicIds") Set<UUID> publicIds);

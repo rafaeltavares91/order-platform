@@ -46,6 +46,12 @@ public final class Customer {
         return new Customer(id, document, name, balance, createdAt, updatedAt);
     }
 
+    public Customer credit(Money amount, Instant creditedAt) {
+        Objects.requireNonNull(amount, "amount must not be null");
+        Objects.requireNonNull(creditedAt, "creditedAt must not be null");
+        return new Customer(id, document, name, balance.add(amount), createdAt, creditedAt);
+    }
+
     private static String requireText(String value, String field, int maximumLength) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(field + " must not be blank");

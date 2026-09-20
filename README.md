@@ -9,10 +9,11 @@ A production-oriented order processing service built with Java 25, Spring Boot, 
 
 ## Run locally
 
-Start PostgreSQL:
+Create a free LocalStack Hobby account, expose its token, and start the local dependencies:
 
 ```shell
-docker compose up -d postgres
+export LOCALSTACK_AUTH_TOKEN=your-token
+docker compose up -d postgres localstack keycloak
 ```
 
 Run the application:
@@ -26,7 +27,16 @@ The `local` and `dev` profiles create three sample customers on startup. Their f
 `01994d56-1200-7000-8000-000000000006`. Existing sample customers are preserved, so restarting
 the application does not duplicate them.
 
-The default local credentials in `compose.yaml` are development-only. Override `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD` in deployed environments.
+The LocalStack initializer creates the SNS topics, SQS queues, subscriptions, filters, queue policies, and dead-letter queues. Keycloak imports a development realm with machine-to-machine clients. All credentials in `compose.yaml` and the realm file are development-only.
+
+Obtain a read/write access token:
+
+```shell
+ACCESS_TOKEN=$(curl --silent --request POST \
+  http://localhost:8081/realms/order-platform/protocol/openid-connect/token \
+  --user order-platform-read-write:local-read-write-secret \
+  --data grant_type=client_credentials | jq --raw-output .access_token)
+```
 
 ## API
 
@@ -35,6 +45,7 @@ Create an order:
 ```shell
 curl --request POST http://localhost:8080/orders \
   --header 'Content-Type: application/json' \
+  --header "Authorization: Bearer $ACCESS_TOKEN" \
   --data '{
     "creditDate": "2099-09-15",
     "items": [
@@ -57,8 +68,20 @@ Customers referenced by `customerId` must already exist. The application calcula
 Retrieve an order:
 
 ```shell
-curl http://localhost:8080/orders/{orderId}
+curl --header "Authorization: Bearer $ACCESS_TOKEN" http://localhost:8080/orders/{orderId}
 ```
+
+New orders are persisted as `WAITING_PAYMENT`. The same transaction stores a `PaymentRequested.v1` outbox event, which is retried until it is published to the `order-events` SNS topic. LocalStack routes it to the `order-payment-requested` SQS queue through a filtered subscription.
+
+Publish a local payment confirmation through the `payment-events` SNS topic:
+
+```shell
+./localstack/publish-payment-confirmed.sh {orderId} PAY-001 25.0000 CAD
+```
+
+The `order-payment-confirmed` consumer validates the amount and currency and atomically credits all customers and changes the order and its items to `CREDITED`. Message and payment identifiers make retries idempotent. Invalid messages are retried and eventually moved to `order-payment-confirmed-dlq`.
+
+The API is an OAuth2 Resource Server. `POST /orders` requires `orders:write`, `GET /orders/{id}` requires `orders:read`, and health endpoints remain public. Authentication uses Keycloak locally; a future Cognito user pool can issue equivalent client-credentials tokens by changing the configured issuer, JWK set, and audience.
 
 Health endpoints are available at `/actuator/health`, `/actuator/health/liveness`, and `/actuator/health/readiness`.
 
@@ -114,4 +137,6 @@ Database-backed tests are skipped when Docker is unavailable; CI should provide 
 - Orders contain one or more customer items and derive their persisted total from those items
 - Separate `orders`, `order_items`, and `customers` tables with internal `BIGINT` foreign keys and without implicit JPA relationships
 - Spring MVC and JPA; reactive infrastructure is intentionally absent
-- Kafka, outbox, sagas, CQRS, Redis, exporters, and resilience libraries are intentionally deferred
+- SNS topics fan out events to dedicated SQS queues; delivery is at least once and consumers are idempotent
+- A transactional outbox protects order creation from broker availability and an inbox deduplicates consumed events
+- Kafka, sagas, CQRS, Redis, exporters, and resilience libraries remain deferred

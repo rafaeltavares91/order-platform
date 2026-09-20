@@ -1,0 +1,54 @@
+{
+  "realm": "order-platform",
+  "enabled": true,
+  "clientScopes": [
+    {
+      "name": "orders:read",
+      "protocol": "openid-connect",
+      "attributes": {"include.in.token.scope": "true"}
+    },
+    {
+      "name": "orders:write",
+      "protocol": "openid-connect",
+      "attributes": {"include.in.token.scope": "true"}
+    },
+    {
+      "name": "order-platform-audience",
+      "protocol": "openid-connect",
+      "attributes": {"include.in.token.scope": "false"},
+      "protocolMappers": [
+        {
+          "name": "order-platform-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "order-platform-api",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "order-platform-read-write",
+      "secret": "local-read-write-secret",
+      "enabled": true,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "defaultClientScopes": ["orders:read", "orders:write", "order-platform-audience"]
+    },
+    {
+      "clientId": "order-platform-read-only",
+      "secret": "local-read-only-secret",
+      "enabled": true,
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "defaultClientScopes": ["orders:read", "order-platform-audience"]
+    }
+  ]
+}

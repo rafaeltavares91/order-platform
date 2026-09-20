@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -36,12 +38,13 @@ class OrderApiIntegrationTest extends PostgreSqlIntegrationTest {
         insertCustomer(SECOND_CUSTOMER_ID, "DOC-002", "Grace Hopper");
 
         var createResult = mockMvc.perform(post("/orders")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_orders:write")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(validRequest()))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.id").isNotEmpty())
-                .andExpect(jsonPath("$.status").value("CREATED"))
+                .andExpect(jsonPath("$.status").value("WAITING_PAYMENT"))
                 .andExpect(jsonPath("$.creditDate").value("2099-09-15"))
                 .andExpect(jsonPath("$.totalAmount").value(25.0))
                 .andExpect(jsonPath("$.currency").value("CAD"))
@@ -57,6 +60,7 @@ class OrderApiIntegrationTest extends PostgreSqlIntegrationTest {
         assertThat(location).isNotBlank();
 
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM orders", Long.class)).isEqualTo(1L);
+        assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM outbox_messages", Long.class)).isEqualTo(1L);
         var persistedOrder = jdbcTemplate.queryForMap("SELECT id, public_id FROM orders");
         assertThat(persistedOrder.get("id")).isInstanceOf(Long.class);
         assertThat(persistedOrder.get("public_id"))
@@ -74,9 +78,10 @@ class OrderApiIntegrationTest extends PostgreSqlIntegrationTest {
                         row -> assertItem(row, FIRST_CUSTOMER_ID, "20.5000"),
                         row -> assertItem(row, SECOND_CUSTOMER_ID, "4.5000"));
 
-        mockMvc.perform(get(location))
+        mockMvc.perform(get(location)
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_orders:read"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("CREATED"))
+                .andExpect(jsonPath("$.status").value("WAITING_PAYMENT"))
                 .andExpect(jsonPath("$.totalAmount").value(25.0))
                 .andExpect(jsonPath("$.items[0].customerId").value(FIRST_CUSTOMER_ID))
                 .andExpect(jsonPath("$.items[1].customerId").value(SECOND_CUSTOMER_ID));
@@ -85,6 +90,7 @@ class OrderApiIntegrationTest extends PostgreSqlIntegrationTest {
     @Test
     void rejectsInvalidRequestDataWithoutPersistingAnOrder() throws Exception {
         mockMvc.perform(post("/orders")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_orders:write")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"creditDate": "2099-09-15", "items": []}
@@ -100,6 +106,7 @@ class OrderApiIntegrationTest extends PostgreSqlIntegrationTest {
     @Test
     void rejectsUnknownJsonProperties() throws Exception {
         mockMvc.perform(post("/orders")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_orders:write")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -121,6 +128,7 @@ class OrderApiIntegrationTest extends PostgreSqlIntegrationTest {
         insertCustomer(FIRST_CUSTOMER_ID, "DOC-001", "Ada Lovelace");
 
         mockMvc.perform(post("/orders")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_orders:write")))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -144,10 +152,26 @@ class OrderApiIntegrationTest extends PostgreSqlIntegrationTest {
     void returnsAProblemResponseWhenTheOrderDoesNotExist() throws Exception {
         var orderId = UUID.fromString("01994d56-1200-7000-8000-000000000001");
 
-        mockMvc.perform(get("/orders/{orderId}", orderId))
+        mockMvc.perform(get("/orders/{orderId}", orderId)
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_orders:read"))))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.title").value("Order not found"))
                 .andExpect(jsonPath("$.detail").value("Order %s was not found".formatted(orderId)));
+    }
+
+    @Test
+    void requiresAuthentication() throws Exception {
+        mockMvc.perform(get("/orders/{orderId}", UUID.randomUUID()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void requiresTheCorrectScope() throws Exception {
+        mockMvc.perform(post("/orders")
+                        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_orders:read")))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(validRequest()))
+                .andExpect(status().isForbidden());
     }
 
     private static void assertItem(Map<String, Object> row, String customerId, String amount) {

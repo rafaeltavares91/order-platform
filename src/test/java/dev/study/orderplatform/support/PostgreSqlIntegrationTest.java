@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
 public abstract class PostgreSqlIntegrationTest {
@@ -14,9 +16,14 @@ public abstract class PostgreSqlIntegrationTest {
     @Autowired
     protected JdbcTemplate jdbcTemplate;
 
+    @DynamicPropertySource
+    static void disableExternalMessaging(DynamicPropertyRegistry registry) {
+        registry.add("order-platform.messaging.enabled", () -> false);
+    }
+
     @BeforeEach
     void cleanDatabase() {
-        jdbcTemplate.execute("TRUNCATE TABLE order_items, orders, customers CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE inbox_messages, outbox_messages, order_items, orders, customers CASCADE");
     }
 
     protected void insertCustomer(String id, String document, String name) {
