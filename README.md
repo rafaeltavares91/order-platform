@@ -1,6 +1,6 @@
 # Order Platform
 
-A production-oriented order processing service built with Java 25, Spring Boot, PostgreSQL, and a Pragmatic Layered Architecture with Domain Separation.
+A production-oriented order processing service built with Java 25, Spring Boot, PostgreSQL, and a Pragmatic Layered Architecture with Decoupled Domain.
 
 ## Requirements
 
@@ -87,7 +87,7 @@ Health endpoints are available at `/actuator/health`, `/actuator/health/liveness
 
 ## Architecture
 
-The project follows a **Pragmatic Layered Architecture with Domain Separation**. It is a single deployable Gradle module organized into clear concerns:
+The project follows a **Pragmatic Layered Architecture with Decoupled Domain**. It is a single deployable Gradle module organized into clear concerns:
 
 - `domain.model` contains entities, value objects, and business invariants.
 - `domain.service` coordinates application and use-case behavior.
