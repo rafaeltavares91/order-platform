@@ -4,7 +4,7 @@
 
 Order Platform is a production-oriented learning project. Favor correctness, clarity, maintainability, testability, and reviewable changes. Add complexity only for a concrete requirement.
 
-Stack: Java 25, Spring Boot, Gradle, PostgreSQL, Flyway, JUnit 5, Mockito, AssertJ, Testcontainers, and Docker Compose. Do not add frameworks, dependencies, infrastructure, or architectural patterns without explaining the need and trade-offs. Kafka, outbox, sagas, CQRS, Redis, and observability infrastructure remain deferred until required.
+Stack: Java 25, Spring Boot, Gradle, PostgreSQL, Flyway, JUnit 5, Mockito, AssertJ, Testcontainers, and Docker Compose. Do not add frameworks, dependencies, infrastructure, or architectural patterns without explaining the need and trade-offs.
 
 ## Architecture
 
