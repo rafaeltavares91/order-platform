@@ -20,7 +20,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import dev.study.orderplatform.domain.exception.CustomersNotFoundException;
-import dev.study.orderplatform.domain.model.IdentifierGenerator;
+import dev.study.orderplatform.domain.port.IdentifierGenerator;
 import dev.study.orderplatform.domain.model.Money;
 import dev.study.orderplatform.domain.model.Order;
 import dev.study.orderplatform.domain.model.OrderItemAllocation;

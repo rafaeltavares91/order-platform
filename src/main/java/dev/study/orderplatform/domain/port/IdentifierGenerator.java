@@ -1,4 +1,4 @@
-package dev.study.orderplatform.domain.model;
+package dev.study.orderplatform.domain.port;
 
 import java.util.UUID;
 
