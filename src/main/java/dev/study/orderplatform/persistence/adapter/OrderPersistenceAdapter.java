@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import dev.study.orderplatform.domain.model.OrderItem;
+import dev.study.orderplatform.persistence.entity.CustomerEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,10 +47,11 @@ public class OrderPersistenceAdapter implements SaveOrderPort, LoadOrderPort {
     @Transactional
     public Order save(Order order, PaymentRequested paymentRequested) {
         var customerPublicIds = order.items().stream()
-                .map(item -> item.customerId())
+                .map(OrderItem::customerId)
                 .collect(Collectors.toSet());
+
         var customerIdsByPublicId = customerRepository.findAllByPublicIdIn(customerPublicIds).stream()
-                .collect(Collectors.toMap(customer -> customer.publicId(), customer -> customer.internalId()));
+                .collect(Collectors.toMap(CustomerEntity::publicId, CustomerEntity::internalId));
 
         var entity = repository.save(OrderEntity.from(order));
         var itemEntities = new ArrayList<OrderItemEntity>(order.items().size());
@@ -79,7 +82,7 @@ public class OrderPersistenceAdapter implements SaveOrderPort, LoadOrderPort {
                     .map(OrderItemEntity::customerInternalId)
                     .collect(Collectors.toSet());
             var customerPublicIdsByInternalId = customerRepository.findAllById(customerInternalIds).stream()
-                    .collect(Collectors.toMap(customer -> customer.internalId(), customer -> customer.publicId()));
+                    .collect(Collectors.toMap(CustomerEntity::internalId, CustomerEntity::publicId));
             var items = itemEntities.stream()
                     .map(item -> item.toDomain(
                             entity.publicId(), customerPublicIdsByInternalId.get(item.customerInternalId())))
