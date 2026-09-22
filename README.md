@@ -9,18 +9,40 @@ A production-oriented order processing service built with Java 25, Spring Boot, 
 
 ## Run locally
 
-Create a free LocalStack Hobby account, expose its token, and start the local dependencies:
+LocalStack releases starting with `2026.3.0` require authentication. Create a free non-commercial
+LocalStack Hobby account, copy an auth token, and expose it only in your local shell or an ignored
+`.env` file. Never commit the token.
+
+Start the dependencies and wait until PostgreSQL, LocalStack, and Keycloak are ready:
 
 ```shell
 export LOCALSTACK_AUTH_TOKEN=your-token
-docker compose up -d postgres localstack keycloak
+docker compose up -d --wait postgres localstack keycloak
 ```
 
-Run the application:
+Confirm that all three services are healthy before starting the application:
+
+```shell
+docker compose ps
+```
+
+Then run the application:
 
 ```shell
 ./gradlew bootRun --args='--spring.profiles.active=local'
 ```
+
+To run the HTTP API without SNS/SQS while obtaining a LocalStack token, start only PostgreSQL and
+Keycloak and disable messaging for the application process:
+
+```shell
+docker compose up -d --wait postgres keycloak
+MESSAGING_ENABLED=false ./gradlew bootRun --args='--spring.profiles.active=local'
+```
+
+If startup fails with `SdkClientException` connecting to `localhost:4566`, the AWS SDK is reporting
+that LocalStack is unavailable. Check `docker compose ps` and `docker compose logs localstack`; the
+usual cause is a missing or invalid `LOCALSTACK_AUTH_TOKEN`.
 
 The `local` and `dev` profiles create three sample customers on startup. Their fixed IDs are
 `01994d56-1200-7000-8000-000000000004`, `01994d56-1200-7000-8000-000000000005`, and

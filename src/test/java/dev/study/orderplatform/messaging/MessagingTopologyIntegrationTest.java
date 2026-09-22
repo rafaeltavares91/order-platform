@@ -29,7 +29,7 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 class MessagingTopologyIntegrationTest {
 
     private static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
-                    DockerImageName.parse("localstack/localstack:latest"))
+                    DockerImageName.parse("localstack/localstack:2026.8.3"))
             .withServices("sns", "sqs")
             .withEnv("LOCALSTACK_AUTH_TOKEN", System.getenv().getOrDefault("LOCALSTACK_AUTH_TOKEN", "missing"));
 

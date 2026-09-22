@@ -17,7 +17,7 @@ services:
       - postgres-data:/var/lib/postgresql/18/docker
 
   localstack:
-    image: localstack/localstack:latest
+    image: localstack/localstack:2026.8.3
     environment:
       LOCALSTACK_AUTH_TOKEN: ${LOCALSTACK_AUTH_TOKEN:-}
       SERVICES: sns,sqs
@@ -27,7 +27,11 @@ services:
     volumes:
       - ./localstack/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      test:
+        - CMD-SHELL
+        - >-
+          awslocal sqs get-queue-url --queue-name order-payment-confirmed >/dev/null 2>&1 &&
+          awslocal sns get-topic-attributes --topic-arn arn:aws:sns:us-east-1:000000000000:order-events >/dev/null 2>&1
       interval: 5s
       timeout: 5s
       retries: 20
