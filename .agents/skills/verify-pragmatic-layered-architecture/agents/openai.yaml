@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Pragmatic Layered Architecture"
+  short_description: "Audit this project’s architectural boundaries"
+  default_prompt: "Use $verify-pragmatic-layered-architecture to audit the current changes for architectural violations."
