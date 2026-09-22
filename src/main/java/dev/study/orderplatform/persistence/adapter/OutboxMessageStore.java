@@ -23,6 +23,23 @@ public class OutboxMessageStore {
     }
 
     @Transactional
+    public void enqueue(UUID id, UUID aggregateId, String eventType, String payload, Instant occurredAt) {
+        jdbcTemplate.update(
+                """
+                INSERT INTO outbox_messages (
+                    public_id, aggregate_id, event_type, payload, status,
+                    next_attempt_at, created_at
+                ) VALUES (?, ?, ?, CAST(? AS jsonb), 'PENDING', ?, ?)
+                """,
+                id,
+                aggregateId,
+                eventType,
+                payload,
+                timestamp(occurredAt),
+                timestamp(occurredAt));
+    }
+
+    @Transactional
     public List<OutboxMessage> claim(int batchSize, Instant now, Duration lease) {
         var messages = jdbcTemplate.query(
                 """

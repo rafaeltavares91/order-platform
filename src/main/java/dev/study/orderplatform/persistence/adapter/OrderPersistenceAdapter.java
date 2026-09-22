@@ -1,5 +1,6 @@
 package dev.study.orderplatform.persistence.adapter;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -16,28 +17,27 @@ import dev.study.orderplatform.persistence.entity.OrderItemEntity;
 import dev.study.orderplatform.persistence.repository.CustomerRepository;
 import dev.study.orderplatform.persistence.repository.OrderItemRepository;
 import dev.study.orderplatform.persistence.repository.OrderRepository;
-import jakarta.persistence.EntityManager;
 import tools.jackson.databind.ObjectMapper;
 
 @Repository
 public class OrderPersistenceAdapter implements SaveOrderPort, LoadOrderPort {
 
-    private final EntityManager entityManager;
     private final CustomerRepository customerRepository;
     private final OrderRepository repository;
     private final OrderItemRepository itemRepository;
+    private final OutboxMessageStore outboxMessageStore;
     private final ObjectMapper objectMapper;
 
     public OrderPersistenceAdapter(
-            EntityManager entityManager,
             CustomerRepository customerRepository,
             OrderRepository repository,
             OrderItemRepository itemRepository,
+            OutboxMessageStore outboxMessageStore,
             ObjectMapper objectMapper) {
-        this.entityManager = entityManager;
         this.customerRepository = customerRepository;
         this.repository = repository;
         this.itemRepository = itemRepository;
+        this.outboxMessageStore = outboxMessageStore;
         this.objectMapper = objectMapper;
     }
 
@@ -50,29 +50,23 @@ public class OrderPersistenceAdapter implements SaveOrderPort, LoadOrderPort {
         var customerIdsByPublicId = customerRepository.findAllByPublicIdIn(customerPublicIds).stream()
                 .collect(Collectors.toMap(customer -> customer.publicId(), customer -> customer.internalId()));
 
-        var entity = OrderEntity.from(order);
-        entityManager.persist(entity);
+        var entity = repository.save(OrderEntity.from(order));
+        var itemEntities = new ArrayList<OrderItemEntity>(order.items().size());
         for (var index = 0; index < order.items().size(); index++) {
             var item = order.items().get(index);
             var customerId = customerIdsByPublicId.get(item.customerId());
             if (customerId == null) {
                 throw new IllegalStateException("Customer %s no longer exists".formatted(item.customerId()));
             }
-            entityManager.persist(OrderItemEntity.from(item, entity.internalId(), customerId, index));
+            itemEntities.add(OrderItemEntity.from(item, entity.internalId(), customerId, index));
         }
-        entityManager.createNativeQuery(
-                        """
-                        INSERT INTO outbox_messages (
-                            public_id, aggregate_id, event_type, payload, status,
-                            next_attempt_at, created_at
-                        ) VALUES (?1, ?2, ?3, CAST(?4 AS jsonb), 'PENDING', ?5, ?5)
-                        """)
-                .setParameter(1, paymentRequested.eventId())
-                .setParameter(2, paymentRequested.orderId())
-                .setParameter(3, PaymentRequested.EVENT_TYPE)
-                .setParameter(4, serialize(paymentRequested))
-                .setParameter(5, paymentRequested.occurredAt())
-                .executeUpdate();
+        itemRepository.saveAll(itemEntities);
+        outboxMessageStore.enqueue(
+                paymentRequested.eventId(),
+                paymentRequested.orderId(),
+                PaymentRequested.EVENT_TYPE,
+                serialize(paymentRequested),
+                paymentRequested.occurredAt());
         return order;
     }
 
