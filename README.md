@@ -1,6 +1,8 @@
 # Order Platform
 
-A production-oriented order processing service built with Java 25, Spring Boot, PostgreSQL, and a Pragmatic Layered Architecture with Decoupled Domain.
+A learning sandbox for practicing backend development through an order-processing service. It uses
+Java 25 and Spring Boot, persists data in PostgreSQL with Flyway migrations, secures HTTP APIs with
+OAuth 2.0, and exercises SNS/SQS messaging locally through LocalStack.
 
 ## Requirements
 
@@ -176,4 +178,3 @@ The LocalStack topology test also requires the `LOCALSTACK_AUTH_TOKEN` environme
 - Spring MVC and JPA; reactive infrastructure is intentionally absent
 - SNS topics fan out events to dedicated SQS queues; delivery is at least once and consumers are idempotent
 - A transactional outbox protects order creation from broker availability and an inbox deduplicates consumed events
-- Kafka, sagas, CQRS, Redis, exporters, and resilience libraries remain deferred
