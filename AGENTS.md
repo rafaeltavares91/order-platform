@@ -2,16 +2,19 @@
 
 ## Project
 
-Order Platform is a production-oriented learning project. Favor correctness, clarity, maintainability, testability, and reviewable changes. Add complexity only for a concrete requirement.
+Order Platform is a learning sandbox for practicing backend development through an order-processing service. Favor correctness, clarity, maintainability, testability, and reviewable changes over production-scale complexity.
 
-Stack: Java 25, Spring Boot, Gradle, PostgreSQL, Flyway, JUnit 5, Mockito, AssertJ, Testcontainers, and Docker Compose. Do not add frameworks, dependencies, infrastructure, or architectural patterns without explaining the need and trade-offs.
+Stack: Java 25, Spring Boot, Gradle, PostgreSQL, Flyway, OAuth 2.0, SNS/SQS through LocalStack, JUnit 5, Mockito, AssertJ, Testcontainers, and Docker Compose. Add frameworks, dependencies, infrastructure, or architectural patterns only for a concrete requirement, and explain the need and trade-offs.
 
 ## Architecture
 
 This is a single-module **Pragmatic Layered Architecture with Decoupled Domain**:
 
-- `domain.model`: entities, value objects, and invariants; `domain.service`: use-case coordination; `domain.port`: useful external-boundary contracts.
-- `web`: controllers, DTOs, and errors; `persistence`: JPA entities, repositories, persistence operations, and infrastructure adapters such as ID generation; `configuration`: Spring wiring.
+- `domain.model`: entities, value objects, and invariants; `domain.service`: use-case coordination; `domain.port`: meaningful external-boundary contracts.
+- `web`: controllers, HTTP DTOs, and error handling.
+- `persistence`: JPA entities, repositories, persistence operations, and infrastructure adapters such as ID generation.
+- `messaging`: broker-facing listeners, messages, and publishers.
+- `configuration`: Spring wiring and runtime configuration.
 
 Rules:
 
@@ -31,7 +34,7 @@ Rules:
 
 ## Implementation
 
-Inspect relevant code and tests first. Make the smallest coherent change, preserve existing conventions, and avoid unrelated refactors or changes to APIs, schemas, dependencies, or boundaries.
+Inspect the code and tests relevant to the task. Make the smallest coherent change, preserve existing conventions, and avoid unrelated refactors or changes to APIs, schemas, dependencies, or boundaries.
 
 Use modern, idiomatic Java: small cohesive classes, records for immutable carriers, and `var` when inference is obvious. Avoid field injection, unnecessary inheritance, speculative abstractions, and comments that restate code. Explain significant architectural choices.
 
@@ -41,13 +44,15 @@ Use the smallest useful scope and test observable behavior rather than implement
 
 - **Services:** focused, fast, deterministic unit tests without Spring. Mock external collaborators, not domain objects. Cover meaningful behavior, rules, errors, and branches with JUnit 5, Mockito, and AssertJ.
 - **Controllers/APIs:** application integration tests covering `HTTP -> controller -> service -> persistence -> PostgreSQL`. Use the appropriate Spring context, Testcontainers, real PostgreSQL, and Flyway; do not mock services or persistence. Verify contracts, validation, errors, and relevant state without duplicating service tests.
+- **Messaging:** use unit tests for mapping and coordination; reserve LocalStack integration tests for broker topology and behavior that an in-memory substitute would not prove.
 - **Persistence:** ordinarily covered through application integration tests. Add dedicated integration tests only for custom queries, important constraints, non-trivial mappings, locking/concurrency, or transaction behavior. Do not test simple JPA/framework behavior for coverage.
-- **General:** add regression coverage when practical. Do not start Spring for pure unit tests, duplicate assertions without added value, or create artificial tests solely to reach a coverage percentage.
+- **General:** name container-backed tests `*IntegrationTest`; `unitTest` excludes that pattern. Add regression coverage when practical. Do not start Spring for pure unit tests, duplicate assertions without added value, or create artificial tests solely to reach a coverage percentage.
 
 ## Verification
 
-- Compile and run relevant tests; run `./gradlew test` when practical.
-- Before committing, run `./gradlew unitTest`.
-- Before pushing or finalizing work, run `./gradlew check` when the environment supports Docker and the required integration-test services.
+- During implementation, run the narrowest relevant tests and expand the scope when the change crosses boundaries.
+- The pre-commit hook runs `./gradlew unitTest`. Run it directly before handoff when no commit is requested; do not repeat it if it already passed against unchanged code.
+- The pre-push hook and CI run `./gradlew check`. Run it directly before handing off code, configuration, or schema changes when Docker is available; the LocalStack topology test also requires `LOCALSTACK_AUTH_TOKEN`.
+- For documentation-only changes, `git diff --check` is sufficient unless the documentation changes executable commands or configuration.
 - Report commands executed, failures, and skipped tests.
 - Do not claim unverified behavior works.
