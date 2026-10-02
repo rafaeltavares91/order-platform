@@ -47,5 +47,7 @@ Use the smallest useful scope and test observable behavior rather than implement
 ## Verification
 
 - Compile and run relevant tests; run `./gradlew test` when practical.
+- Before committing, run `./gradlew unitTest`.
+- Before pushing or finalizing work, run `./gradlew check` when the environment supports Docker and the required integration-test services.
 - Report commands executed, failures, and skipped tests.
 - Do not claim unverified behavior works.

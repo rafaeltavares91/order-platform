@@ -59,6 +59,14 @@ tasks.withType<Test>().configureEach {
     }
 }
 
+tasks.register<Test>("unitTest") {
+    group = "verification"
+    description = "Runs unit and architecture tests without Testcontainers integration tests."
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    exclude("**/*IntegrationTest.class", "**/*IntegrationTest\$*.class")
+}
+
 tasks.withType<AbstractArchiveTask>().configureEach {
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true

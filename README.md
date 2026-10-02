@@ -133,8 +133,22 @@ docker compose up -d postgres
 
 ## Tests
 
+Enable the versioned Git hooks once per clone:
+
 ```shell
-./gradlew test
+git config core.hooksPath .githooks
+```
+
+The pre-commit hook runs the fast unit and architecture test suite:
+
+```shell
+./gradlew unitTest
+```
+
+The pre-push hook and CI run the complete suite, including integration tests:
+
+```shell
+./gradlew check
 ```
 
 The project uses a pragmatic testing strategy aligned with its layered architecture:
@@ -145,7 +159,8 @@ The project uses a pragmatic testing strategy aligned with its layered architect
 - Dedicated persistence integration tests are reserved for custom queries, important constraints, non-trivial mappings, locking, concurrency, or transaction behavior.
 - Tests target meaningful observable behavior rather than framework internals or a numeric coverage percentage.
 
-Database-backed tests are skipped when Docker is unavailable; CI should provide Docker so integration tests always execute.
+Database-backed tests require Docker; CI provides it so integration tests execute as part of the required check.
+The LocalStack topology test also requires the `LOCALSTACK_AUTH_TOKEN` environment variable. CI reads it from a repository secret with the same name.
 
 ## Explicit initial decisions
 
