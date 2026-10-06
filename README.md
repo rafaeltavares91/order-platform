@@ -95,15 +95,15 @@ Retrieve an order:
 curl --header "Authorization: Bearer $ACCESS_TOKEN" http://localhost:8080/orders/{orderId}
 ```
 
-New orders are persisted as `WAITING_PAYMENT`. The same transaction stores a `PaymentRequested.v1` outbox event, which is retried until it is published to the `order-events` SNS topic. LocalStack routes it to the `order-payment-requested` SQS queue through a filtered subscription.
+New orders are persisted as `WAITING_PAYMENT`. The same transaction stores a `PaymentRequested.v1` outbox event, which is retried until it is published to the `payment-requested` SNS topic. LocalStack routes it to the `payment-requested` SQS queue through a filtered subscription.
 
-Publish a local payment confirmation through the `payment-events` SNS topic:
+Publish a local payment confirmation through the `payment-confirmed` SNS topic:
 
 ```shell
 ./localstack/publish-payment-confirmed.sh {orderId} PAY-001 25.0000 CAD
 ```
 
-The `order-payment-confirmed` consumer validates the amount and currency and atomically credits all customers and changes the order and its items to `CREDITED`. Message and payment identifiers make retries idempotent. Invalid messages are retried and eventually moved to `order-payment-confirmed-dlq`.
+The `payment-confirmed` consumer validates the amount and currency and atomically credits all customers and changes the order and its items to `CREDITED`. Message and payment identifiers make retries idempotent. Invalid messages are retried and eventually moved to `payment-confirmed-dlq`.
 
 The API is an OAuth2 Resource Server. `POST /orders` requires `orders:write`, `GET /orders/{id}` requires `orders:read`, and health endpoints remain public. Authentication uses Keycloak locally; a future Cognito user pool can issue equivalent client-credentials tokens by changing the configured issuer, JWK set, and audience.
 

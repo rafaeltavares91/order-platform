@@ -30,8 +30,15 @@ services:
       test:
         - CMD-SHELL
         - >-
-          awslocal sqs get-queue-url --queue-name order-payment-confirmed >/dev/null 2>&1 &&
-          awslocal sns get-topic-attributes --topic-arn arn:aws:sns:us-east-1:000000000000:order-events >/dev/null 2>&1
+          awslocal sqs get-queue-url --queue-name payment-confirmed >/dev/null 2>&1 &&
+          test "$(awslocal sns list-subscriptions-by-topic
+          --topic-arn arn:aws:sns:us-east-1:000000000000:payment-requested
+          --query "length(Subscriptions[?Endpoint=='arn:aws:sqs:us-east-1:000000000000:payment-requested'])"
+          --output text)" -eq 1 &&
+          test "$(awslocal sns list-subscriptions-by-topic
+          --topic-arn arn:aws:sns:us-east-1:000000000000:payment-confirmed
+          --query "length(Subscriptions[?Endpoint=='arn:aws:sqs:us-east-1:000000000000:payment-confirmed'])"
+          --output text)" -eq 1
       interval: 5s
       timeout: 5s
       retries: 20

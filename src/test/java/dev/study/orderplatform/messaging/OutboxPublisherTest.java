@@ -44,7 +44,7 @@ class OutboxPublisherTest {
                 store,
                 snsClient,
                 Clock.fixed(NOW, ZoneOffset.UTC),
-                "arn:aws:sns:us-east-1:000000000000:order-events",
+                "arn:aws:sns:us-east-1:000000000000:payment-requested",
                 20);
 
         publisher.publishPending();

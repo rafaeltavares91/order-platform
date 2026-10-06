@@ -67,7 +67,7 @@ class MessagingTopologyIntegrationTest {
 
     @Test
     void fansOutOnlyMatchingEventsToEverySubscribedQueue() {
-        var topicArn = sns.createTopic(request -> request.name("order-events")).topicArn();
+        var topicArn = sns.createTopic(request -> request.name("payment-requested")).topicArn();
         var firstQueueUrl = createQueue("payment-requested-first");
         var secondQueueUrl = createQueue("payment-requested-second");
         subscribe(topicArn, queueArn(firstQueueUrl));

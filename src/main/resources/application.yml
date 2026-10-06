@@ -41,8 +41,8 @@ spring:
 order-platform:
   messaging:
     enabled: ${MESSAGING_ENABLED:true}
-    order-events-topic-arn: ${ORDER_EVENTS_TOPIC_ARN:arn:aws:sns:us-east-1:000000000000:order-events}
-    payment-confirmed-queue: ${PAYMENT_CONFIRMED_QUEUE:order-payment-confirmed}
+    payment-requested-topic-arn: ${PAYMENT_REQUESTED_TOPIC_ARN:arn:aws:sns:us-east-1:000000000000:payment-requested}
+    payment-confirmed-queue: ${PAYMENT_CONFIRMED_QUEUE:payment-confirmed}
     outbox:
       batch-size: ${OUTBOX_BATCH_SIZE:20}
       poll-delay: ${OUTBOX_POLL_DELAY:1000}

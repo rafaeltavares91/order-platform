@@ -16,6 +16,6 @@ MESSAGE=$(printf '{"eventId":"%s","eventType":"PaymentConfirmed.v1","orderId":"%
   "$EVENT_ID" "$ORDER_ID" "$PAYMENT_ID" "$AMOUNT" "$CURRENCY" "$PAID_AT")
 
 docker compose exec -T localstack awslocal sns publish \
-  --topic-arn arn:aws:sns:us-east-1:000000000000:payment-events \
+  --topic-arn arn:aws:sns:us-east-1:000000000000:payment-confirmed \
   --message "$MESSAGE" \
   --message-attributes '{"eventType":{"DataType":"String","StringValue":"PaymentConfirmed.v1"}}'

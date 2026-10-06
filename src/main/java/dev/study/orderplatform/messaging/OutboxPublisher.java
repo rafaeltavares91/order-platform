@@ -27,7 +27,7 @@ public class OutboxPublisher {
             OutboxMessageStore store,
             SnsClient snsClient,
             Clock clock,
-            @Value("${order-platform.messaging.order-events-topic-arn}") String topicArn,
+            @Value("${order-platform.messaging.payment-requested-topic-arn}") String topicArn,
             @Value("${order-platform.messaging.outbox.batch-size:20}") int batchSize) {
         this.store = store;
         this.snsClient = snsClient;
