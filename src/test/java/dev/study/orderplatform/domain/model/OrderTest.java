@@ -76,7 +76,7 @@ class OrderTest {
 
         assertThatThrownBy(() -> Order.rehydrate(
                         ORDER_ID,
-                        OrderStatus.CREATED,
+                        OrderStatus.WAITING_PAYMENT,
                         CREDIT_DATE,
                         money("99.0000"),
                         List.of(item),

@@ -31,7 +31,7 @@ CREATE TABLE orders (
     updated_at timestamptz NOT NULL,
     CONSTRAINT uq_orders_public_id UNIQUE (public_id),
     CONSTRAINT chk_orders_status CHECK (
-        status IN ('CREATED', 'WAITING_PAYMENT', 'PAID', 'CREDITED', 'CANCELED')
+        status IN ('WAITING_PAYMENT', 'PAID', 'CREDITED', 'CANCELED')
     ),
     CONSTRAINT chk_orders_total_amount CHECK (total_amount > 0),
     CONSTRAINT chk_orders_currency CHECK (currency ~ '^[A-Z]{3}$'),
