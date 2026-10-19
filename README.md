@@ -120,6 +120,8 @@ The project follows a **Pragmatic Layered Architecture with Decoupled Domain**. 
 
 The root application module depends on `:domain`, while `:domain` has no dependency on Spring or the application module. Domain models remain independent from HTTP DTOs, JPA entities, and framework-specific representations. Web DTOs, persistence entities, and domain models are mapped explicitly and are not reused across boundaries merely for convenience. Services may depend on interfaces for meaningful external boundaries, while controllers may call services directly.
 
+Dependency and project-plugin coordinates are centralized in `gradle/libs.versions.toml`; the root application retains the Spring Boot and Spring Cloud AWS platforms, while `:domain` uses only test-specific dependencies and the JUnit platform.
+
 This is not intended to be a strict implementation of Hexagonal Architecture, Ports and Adapters, Clean Architecture, or another named pattern. New ports, adapters, interactors, application layers, repository interfaces, or similar indirection should be introduced only when they solve a concrete problem. Existing abstractions remain where they currently provide useful isolation or testability. The Gradle module dependency and ArchUnit tests protect the important domain and layer boundaries.
 
 Flyway exclusively owns the schema. Hibernate validates it and never creates or updates it. Production deployments should run Flyway with a dedicated migration identity before rolling out application instances; the runtime database identity should have only data-access privileges.

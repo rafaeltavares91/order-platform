@@ -4,7 +4,7 @@
 
 Order Platform is a learning sandbox for practicing backend development through an order-processing service. Favor correctness, clarity, maintainability, testability, and reviewable changes over production-scale complexity.
 
-Stack: Java 25, Spring Boot, Gradle, PostgreSQL, Flyway, OAuth 2.0, SNS/SQS through LocalStack, JUnit 5, Mockito, AssertJ, Testcontainers, and Docker Compose. Add frameworks, dependencies, infrastructure, or architectural patterns only for a concrete requirement, and explain the need and trade-offs.
+Stack: Java 25, Spring Boot, Gradle, PostgreSQL, Flyway, OAuth 2.0, SNS/SQS through LocalStack, JUnit 6, Mockito, AssertJ, Testcontainers, and Docker Compose. Add frameworks, dependencies, infrastructure, or architectural patterns only for a concrete requirement, and explain the need and trade-offs.
 
 ## Architecture
 
@@ -35,6 +35,8 @@ Rules:
 ## Implementation
 
 Inspect the code and tests relevant to the task. Make the smallest coherent change, preserve existing conventions, and avoid unrelated refactors or changes to APIs, schemas, dependencies, or boundaries.
+
+Declare external dependency and project-plugin coordinates through `gradle/libs.versions.toml`. Keep settings plugins inline because version catalog plugin aliases are unavailable in `settings.gradle.kts`.
 
 Use modern, idiomatic Java: small cohesive classes, records for immutable carriers, and `var` when inference is obvious. Avoid field injection, unnecessary inheritance, speculative abstractions, and comments that restate code. Explain significant architectural choices.
 
