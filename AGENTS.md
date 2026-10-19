@@ -19,6 +19,7 @@ This is a multi-module **Pragmatic Layered Architecture with Decoupled Domain**.
 Rules:
 
 - The root application module may depend on `:domain`; `:domain` must remain independent from the application module, Spring, JPA, web DTOs, persistence entities, and infrastructure representations.
+- Keep the `:domain` main sources and runtime classpath JDK-only unless a concrete domain requirement justifies an external production dependency; test-only dependencies remain permitted.
 - HTTP DTOs, persistence entities, and domain models are separate representations; map them explicitly rather than reusing them for convenience.
 - Services coordinate use cases; controllers may call them directly. Add a separate application layer only for a concrete need.
 - Introduce interfaces at meaningful external boundaries when they improve isolation or testability. Do not add or remove ports, adapters, interactors, repository interfaces, or other indirection merely to match an architectural style.
@@ -44,7 +45,7 @@ Use modern, idiomatic Java: small cohesive classes, records for immutable carrie
 
 Use the smallest useful scope and test observable behavior rather than implementation details:
 
-- **Services:** focused, fast, deterministic unit tests without Spring. Mock external collaborators, not domain objects. Cover meaningful behavior, rules, errors, and branches with JUnit 5, Mockito, and AssertJ.
+- **Services:** focused, fast, deterministic unit tests without Spring. Mock external collaborators, not domain objects. Cover meaningful behavior, rules, errors, and branches with JUnit 6, Mockito, and AssertJ.
 - **Controllers/APIs:** application integration tests covering `HTTP -> controller -> service -> persistence -> PostgreSQL`. Use the appropriate Spring context, Testcontainers, real PostgreSQL, and Flyway; do not mock services or persistence. Verify contracts, validation, errors, and relevant state without duplicating service tests.
 - **Messaging:** use unit tests for mapping and coordination; reserve LocalStack integration tests for broker topology and behavior that an in-memory substitute would not prove.
 - **Persistence:** ordinarily covered through application integration tests. Add dedicated integration tests only for custom queries, important constraints, non-trivial mappings, locking/concurrency, or transaction behavior. Do not test simple JPA/framework behavior for coverage.

@@ -26,12 +26,13 @@ Do not presume every class must have a port, every service must have an interfac
 
 ## Gather evidence
 
-Read the governing files before deciding: `AGENTS.md`, the Architecture section of `README.md`, the relevant production classes, and `src/test/java/dev/study/orderplatform/architecture/ArchitectureTest.java`. Use `rg` to inspect imports and cross-package references. Prefer semantic inspection over package-name matching alone.
+Read the governing files before deciding: `AGENTS.md`, the Architecture section of `README.md`, `settings.gradle.kts`, the root and domain build files, the relevant production classes, and both architecture tests at `src/test/java/dev/study/orderplatform/architecture/ArchitectureTest.java` and `domain/src/test/java/dev/study/orderplatform/architecture/DomainArchitectureTest.java`. Use `rg` to inspect imports and cross-package references. Prefer semantic inspection over package-name matching alone.
 
 When execution is appropriate, run the smallest useful existing architecture test first:
 
 ```shell
-./gradlew test --tests dev.study.orderplatform.architecture.ArchitectureTest
+./gradlew :domain:test --tests dev.study.orderplatform.architecture.DomainArchitectureTest
+./gradlew :test --tests dev.study.orderplatform.architecture.ArchitectureTest
 ```
 
 Broaden to relevant unit or integration tests only when the reviewed boundary or behavior needs it. Never claim a command passed if it was not run. A passing ArchUnit test is evidence for its encoded rules, not proof that all architectural responsibilities are correct.
@@ -40,16 +41,18 @@ Broaden to relevant unit or integration tests only when the reviewed boundary or
 
 Treat these as violations unless an explicit project rule supersedes them:
 
-1. `domain` imports Spring, Jakarta Persistence, web DTOs, persistence entities or repositories, messaging representations, or configuration classes.
-2. Web code imports persistence implementation types or accesses repositories directly.
-3. Infrastructure representations leak into domain APIs, including JPA entities or HTTP/message DTOs used as domain inputs or results.
-4. A single representation is reused as domain model, HTTP DTO, and persistence entity. Require explicit boundary mapping; mapping methods may live on infrastructure-side representations when they do not push infrastructure concerns into the domain.
-5. Business invariants that determine valid domain state are implemented only in controllers, listeners, adapters, or JPA entities instead of domain objects.
-6. Spring creates schema state outside Flyway, or a schema change lacks a Flyway migration. Hibernate must validate rather than create or update the schema.
-7. Time-dependent domain or service behavior reads the system clock directly instead of receiving `Clock`, or persistence identifiers that must be UUIDv7 are delegated to the database or random UUID generation.
+1. `:domain` depends on the root application module or adds an external production dependency without a concrete domain requirement. Its main runtime classpath is expected to remain JDK-only.
+2. `domain` imports Spring, Jakarta Persistence, web DTOs, persistence entities or repositories, messaging representations, or configuration classes.
+3. Web code imports persistence implementation types or accesses repositories directly.
+4. Infrastructure representations leak into domain APIs, including JPA entities or HTTP/message DTOs used as domain inputs or results.
+5. A single representation is reused as domain model, HTTP DTO, and persistence entity. Require explicit boundary mapping; mapping methods may live on infrastructure-side representations when they do not push infrastructure concerns into the domain.
+6. Business invariants that determine valid domain state are implemented only in controllers, listeners, adapters, or JPA entities instead of domain objects.
+7. Spring creates schema state outside Flyway, or a schema change lacks a Flyway migration. Hibernate must validate rather than create or update the schema.
+8. Time-dependent domain or service behavior reads the system clock directly instead of receiving `Clock`, or persistence identifiers that must be UUIDv7 are delegated to the database or random UUID generation.
 
 Also verify dependency direction:
 
+- the root application may depend on `:domain`, never the reverse;
 - domain models depend only on the JDK and other domain types;
 - domain services may depend on domain models, domain exceptions, domain ports, and JDK types;
 - web and messaging may invoke domain services and translate external representations;
@@ -97,4 +100,4 @@ Lead with findings ordered by severity. For every violation include:
 
 Separate definite violations from design warnings and optional improvements. Do not invent issues to fill categories. If no violation is found, say so explicitly, state the inspected scope and commands run, and mention residual gaps such as unexecuted tests or architecture rules that are not encoded in ArchUnit.
 
-Do not modify code during an audit unless the user also asks for a fix. If asked to enforce a stable mechanical boundary, extend `ArchitectureTest` with the smallest rule that captures the invariant without banning allowed pragmatic dependencies. Use tests for dependency direction; keep responsibility and cohesion judgments in review rather than encoding brittle naming conventions.
+Do not modify code during an audit unless the user also asks for a fix. If asked to enforce a stable mechanical boundary, extend `DomainArchitectureTest` for domain rules or the root `ArchitectureTest` for application-layer rules, using the smallest rule that captures the invariant without banning allowed pragmatic dependencies. Use tests for dependency direction; keep responsibility and cohesion judgments in review rather than encoding brittle naming conventions.
