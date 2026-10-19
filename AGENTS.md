@@ -8,9 +8,9 @@ Stack: Java 25, Spring Boot, Gradle, PostgreSQL, Flyway, OAuth 2.0, SNS/SQS thro
 
 ## Architecture
 
-This is a single-module **Pragmatic Layered Architecture with Decoupled Domain**:
+This is a multi-module **Pragmatic Layered Architecture with Decoupled Domain**. The `:domain` Gradle module contains the framework-free core, and the root module contains the Spring Boot application and infrastructure:
 
-- `domain.model`: entities, value objects, and invariants; `domain.service`: use-case coordination; `domain.port`: meaningful external-boundary contracts.
+- `:domain`: `domain.model` contains entities, value objects, and invariants; `domain.service` coordinates use cases; `domain.port` contains meaningful external-boundary contracts.
 - `web`: controllers, HTTP DTOs, and error handling.
 - `persistence`: JPA entities, repositories, persistence operations, and infrastructure adapters such as ID generation.
 - `messaging`: broker-facing listeners, messages, and publishers.
@@ -18,7 +18,7 @@ This is a single-module **Pragmatic Layered Architecture with Decoupled Domain**
 
 Rules:
 
-- Domain code must remain independent from Spring, JPA, web DTOs, persistence entities, and infrastructure representations.
+- The root application module may depend on `:domain`; `:domain` must remain independent from the application module, Spring, JPA, web DTOs, persistence entities, and infrastructure representations.
 - HTTP DTOs, persistence entities, and domain models are separate representations; map them explicitly rather than reusing them for convenience.
 - Services coordinate use cases; controllers may call them directly. Add a separate application layer only for a concrete need.
 - Introduce interfaces at meaningful external boundaries when they improve isolation or testability. Do not add or remove ports, adapters, interactors, repository interfaces, or other indirection merely to match an architectural style.

@@ -4,9 +4,34 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "dev.study"
-version = "0.1.0-SNAPSHOT"
 description = "Production-oriented order processing platform"
+
+allprojects {
+    group = "dev.study"
+    version = "0.1.0-SNAPSHOT"
+
+    repositories {
+        mavenCentral()
+    }
+
+    tasks.withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+        options.compilerArgs.addAll(listOf("-parameters", "-Xlint:all", "-Xlint:-processing"))
+        options.release = 25
+    }
+
+    tasks.withType<Test>().configureEach {
+        useJUnitPlatform()
+        testLogging {
+            events("failed", "skipped")
+        }
+    }
+
+    tasks.withType<AbstractArchiveTask>().configureEach {
+        isPreserveFileTimestamps = false
+        isReproducibleFileOrder = true
+    }
+}
 
 java {
     toolchain {
@@ -14,11 +39,8 @@ java {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
+    implementation(project(":domain"))
     implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:4.1.1"))
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -46,28 +68,15 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-tasks.withType<JavaCompile>().configureEach {
-    options.encoding = "UTF-8"
-    options.compilerArgs.addAll(listOf("-parameters", "-Xlint:all", "-Xlint:-processing"))
-    options.release = 25
-}
-
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-    testLogging {
-        events("failed", "skipped")
-    }
-}
-
 tasks.register<Test>("unitTest") {
     group = "verification"
     description = "Runs unit and architecture tests without Testcontainers integration tests."
     testClassesDirs = sourceSets.test.get().output.classesDirs
     classpath = sourceSets.test.get().runtimeClasspath
     exclude("**/*IntegrationTest.class", "**/*IntegrationTest\$*.class")
+    dependsOn(":domain:test")
 }
 
-tasks.withType<AbstractArchiveTask>().configureEach {
-    isPreserveFileTimestamps = false
-    isReproducibleFileOrder = true
+tasks.named("check") {
+    dependsOn(":domain:check")
 }

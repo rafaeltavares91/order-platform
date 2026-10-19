@@ -3,3 +3,5 @@ plugins {
 }
 
 rootProject.name = "order-platform"
+
+include("domain")

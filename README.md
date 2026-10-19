@@ -111,18 +111,16 @@ Health endpoints are available at `/actuator/health`, `/actuator/health/liveness
 
 ## Architecture
 
-The project follows a **Pragmatic Layered Architecture with Decoupled Domain**. It is a single deployable Gradle module organized into clear concerns:
+The project follows a **Pragmatic Layered Architecture with Decoupled Domain**. It has a framework-free `:domain` Gradle module and a root Spring Boot application module, which together produce a single deployable application:
 
-- `domain.model` contains entities, value objects, and business invariants.
-- `domain.service` coordinates application and use-case behavior.
-- `domain.port` contains existing contracts for external capabilities where abstraction provides concrete isolation or testability value.
+- `:domain` contains `domain.model` entities and invariants, `domain.service` use-case coordination, and `domain.port` contracts for meaningful external capabilities.
 - `web.controller`, `web.dto`, and `web.error` expose the HTTP API.
 - `persistence.entity`, `persistence.repository`, and `persistence.adapter` implement explicit infrastructure behavior, including JPA persistence and UUID generation.
 - `configuration` provides Spring wiring.
 
-Domain models remain independent from HTTP DTOs, JPA entities, and framework-specific representations. Web DTOs, persistence entities, and domain models are mapped explicitly and are not reused across boundaries merely for convenience. Services may depend on interfaces for meaningful external boundaries, while controllers may call services directly.
+The root application module depends on `:domain`, while `:domain` has no dependency on Spring or the application module. Domain models remain independent from HTTP DTOs, JPA entities, and framework-specific representations. Web DTOs, persistence entities, and domain models are mapped explicitly and are not reused across boundaries merely for convenience. Services may depend on interfaces for meaningful external boundaries, while controllers may call services directly.
 
-This is not intended to be a strict implementation of Hexagonal Architecture, Ports and Adapters, Clean Architecture, or another named pattern. New ports, adapters, interactors, application layers, repository interfaces, or similar indirection should be introduced only when they solve a concrete problem. Existing abstractions remain where they currently provide useful isolation or testability. ArchUnit tests protect the important domain and layer boundaries without requiring separate build modules.
+This is not intended to be a strict implementation of Hexagonal Architecture, Ports and Adapters, Clean Architecture, or another named pattern. New ports, adapters, interactors, application layers, repository interfaces, or similar indirection should be introduced only when they solve a concrete problem. Existing abstractions remain where they currently provide useful isolation or testability. The Gradle module dependency and ArchUnit tests protect the important domain and layer boundaries.
 
 Flyway exclusively owns the schema. Hibernate validates it and never creates or updates it. Production deployments should run Flyway with a dedicated migration identity before rolling out application instances; the runtime database identity should have only data-access privileges.
 
